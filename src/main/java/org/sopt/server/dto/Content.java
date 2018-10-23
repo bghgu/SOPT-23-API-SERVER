@@ -1,7 +1,9 @@
 package org.sopt.server.dto;
 
 import lombok.Data;
+import org.apache.ibatis.type.Alias;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -9,7 +11,11 @@ import java.util.Date;
  */
 
 @Data
-public class Board {
+@Alias(value = "board")
+public class Content implements Serializable {
+
+    private static final long serialVersionUID = -6970879179294995939L;
+
     private int b_id;
     private String b_title;
     private String b_contents;
