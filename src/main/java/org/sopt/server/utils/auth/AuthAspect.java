@@ -3,9 +3,11 @@ package org.sopt.server.utils.auth;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.sopt.server.dto.User;
 import org.sopt.server.model.DefaultRes;
 import org.sopt.server.model.Token;
 import org.sopt.server.service.JwtService;
+import org.sopt.server.service.UserService;
 import org.sopt.server.utils.ResponseMessage;
 import org.sopt.server.utils.StatusCode;
 import org.springframework.http.HttpStatus;
@@ -28,20 +30,20 @@ public class AuthAspect {
      * 실패 시 기본 반환 Response
      */
     private final static DefaultRes DEFAULT_RES = DefaultRes.builder().statusCode(StatusCode.UNAUTHORIZED).responseMessage(ResponseMessage.UNAUTHORIZED).build();
-    private final static ResponseEntity<DefaultRes> RES_RESPONSE_ENTITY = new ResponseEntity<DefaultRes>(DEFAULT_RES, HttpStatus.UNAUTHORIZED);
+    private final static ResponseEntity<DefaultRes> RES_RESPONSE_ENTITY = new ResponseEntity<>(DEFAULT_RES, HttpStatus.UNAUTHORIZED);
 
     private final HttpServletRequest httpServletRequest;
 
-    //private final UserService userService;
+    private final UserService userService;
 
     private final JwtService jwtService;
 
     /**
      * Repository 의존성 주입
      */
-    public AuthAspect(final HttpServletRequest httpServletRequest, final JwtService jwtService) {
+    public AuthAspect(final HttpServletRequest httpServletRequest, final UserService userService, final JwtService jwtService) {
         this.httpServletRequest = httpServletRequest;
-        //this.userService = userService;
+        this.userService = userService;
         this.jwtService = jwtService;
     }
 
@@ -62,12 +64,12 @@ public class AuthAspect {
             return RES_RESPONSE_ENTITY;
         }
 
-//        final Optional<User> user = userService.getUser(token.getUser_idx());
-//
-//        //유효 사용자 검사
-//        if (!user.isPresent()) {
-//            return RES_RESPONSE_ENTITY;
-//        }
+        final User user = userService.findByUserIdx(token.getUser_idx()).getResponseData();
+
+        //유효 사용자 검사
+        if (user == null) {
+            return RES_RESPONSE_ENTITY;
+        }
 
         return pjp.proceed(pjp.getArgs());
     }

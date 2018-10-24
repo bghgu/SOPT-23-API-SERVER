@@ -4,6 +4,7 @@ import org.sopt.server.dto.Content;
 import org.sopt.server.model.DefaultRes;
 import org.sopt.server.utils.ResponseMessage;
 import org.sopt.server.utils.StatusCode;
+import org.sopt.server.utils.auth.Auth;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -61,8 +62,11 @@ public class ContentController {
      * @param board
      * @return
      */
+    @Auth
     @PostMapping("")
-    public ResponseEntity writeContents(@RequestBody final Content board) {
+    public ResponseEntity writeContents(
+            @RequestHeader("Authorization") final String jwt,
+            @RequestBody final Content board) {
         try {
             return new ResponseEntity(HttpStatus.OK);
         } catch (Exception e) {
@@ -75,8 +79,11 @@ public class ContentController {
      * @param contentIdx
      * @return
      */
+    @Auth
     @PostMapping("/{contentIdx}/likes")
-    public ResponseEntity contentLikes(@PathVariable final int contentIdx) {
+    public ResponseEntity contentLikes(
+            @RequestHeader("Authorization") final String jwt,
+            @PathVariable final int contentIdx) {
         try {
             return new ResponseEntity(HttpStatus.OK);
         } catch (Exception e) {
@@ -89,8 +96,11 @@ public class ContentController {
      * @param contentIdx
      * @return
      */
+    @Auth
     @PutMapping("/{contentIdx}")
-    public ResponseEntity updateContents(@PathVariable final int contentIdx) {
+    public ResponseEntity updateContents(
+            @RequestHeader("Authorization") final String jwt,
+            @PathVariable final int contentIdx) {
         try {
             return new ResponseEntity(HttpStatus.OK);
         } catch (Exception e) {
@@ -103,8 +113,11 @@ public class ContentController {
      * @param contentIdx
      * @return
      */
+    @Auth
     @DeleteMapping("/{contentIdx}")
-    public ResponseEntity deleteContents(@PathVariable final int contentIdx) {
+    public ResponseEntity deleteContents(
+            @RequestHeader("Authorization") final String jwt,
+            @PathVariable final int contentIdx) {
         try {
             return new ResponseEntity(HttpStatus.OK);
         } catch (Exception e) {

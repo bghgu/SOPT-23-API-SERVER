@@ -7,7 +7,7 @@ import lombok.Data;
  */
 
 @Data
-public class Login {
+public class LoginReq {
     private String email;
     private String password;
 }

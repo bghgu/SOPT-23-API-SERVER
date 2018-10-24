@@ -2,7 +2,8 @@ package org.sopt.server.api;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.server.model.DefaultRes;
-import org.sopt.server.model.Login;
+import org.sopt.server.model.LoginReq;
+import org.sopt.server.service.AuthService;
 import org.sopt.server.utils.ResponseMessage;
 import org.sopt.server.utils.StatusCode;
 import org.sopt.server.utils.auth.Auth;
@@ -23,15 +24,31 @@ public class AuthController {
 
     private static final DefaultRes FAIL_DEFAULT_RES = new DefaultRes(StatusCode.INTERNAL_SERVER_ERROR, ResponseMessage.INTERNAL_SERVER_ERROR);
 
+    private final AuthService authService;
+
+    public AuthController(final AuthService authService) {
+        this.authService = authService;
+    }
+
+    /**
+     * 로그인
+     * @param loginReq 로그인 객체
+     * @return
+     */
     @PostMapping("login")
-    public ResponseEntity login(@RequestBody final Login login) {
+    public ResponseEntity login(@RequestBody final LoginReq loginReq) {
         try{
-            return new ResponseEntity(HttpStatus.OK);
+            return new ResponseEntity<>(authService.login(loginReq), HttpStatus.OK);
         }catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    /**
+     * 로그아웃
+     * @return
+     */
     @Auth
     @GetMapping("logout")
     public ResponseEntity logout() {

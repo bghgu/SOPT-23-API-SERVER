@@ -1,16 +1,21 @@
 package org.sopt.server.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 /**
- * Created by ds on 2018-10-23.
+ * Created by ds on 2018-10-24.
  */
 
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Token {
     private int user_idx;
+
+    public Token() {
+    }
+
+    public Token(final int user_idx) {
+        this.user_idx = user_idx;
+    }
+
+    public int getUser_idx() {
+        return user_idx;
+    }
 }
+

@@ -1,7 +1,6 @@
 package org.sopt.server.dto;
 
 import lombok.Data;
-import org.apache.ibatis.type.Alias;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -11,7 +10,6 @@ import java.util.Date;
  */
 
 @Data
-@Alias(value = "comment")
 public class Comment implements Serializable {
 
     private static final long serialVersionUID = -376999960591431403L;
@@ -21,4 +19,5 @@ public class Comment implements Serializable {
     private int u_id;
     private String c_contents;
     private Date c_date;
+    private int c_like;
 }

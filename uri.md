@@ -4,7 +4,7 @@
 
 | 메소드 | 경로          | 설명          |
 | ------ | ------------- | ------------- |
-| POST   | /auths/login  | 로그인        |
+| POST   | /auths/loginReq  | 로그인        |
 | GET    | /auths/logout | 로그아웃      |
 | POST   | /auths/find   | 비밀번호 찾기 |
 

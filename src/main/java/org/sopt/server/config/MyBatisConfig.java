@@ -40,7 +40,6 @@
 //
 //    /**
 //     * 마이바티스 {@link org.apache.ibatis.session.SqlSession} 빈을 등록한다.
-//     *
 //     * SqlSessionTemplate은 SqlSession을 구현하고 코드에서 SqlSession를 대체하는 역할을 한다.
 //     * 쓰레드에 안전하게 작성되었기 때문에 여러 DAO나 매퍼에서 공유 할 수 있다.
 //     */

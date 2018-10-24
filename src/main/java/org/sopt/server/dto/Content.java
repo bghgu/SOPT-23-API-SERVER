@@ -11,7 +11,6 @@ import java.util.Date;
  */
 
 @Data
-@Alias(value = "board")
 public class Content implements Serializable {
 
     private static final long serialVersionUID = -6970879179294995939L;
