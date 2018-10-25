@@ -29,49 +29,81 @@ public class UserServiceImpl implements UserService {
      * @return
      */
     @Override
-    public DefaultRes<User> findByUserIdx(final int userIdx) {
+    public DefaultRes findByUserIdx(final int userIdx) {
+
+//        final Optional<User> user = userMapper.findByUserIdx1(userIdx);
+//        if(user.isPresent()) {
+//            return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_USER, user);
+//        }
+
         final User user = userMapper.findByUserIdx(userIdx);
-        if(user != null) {
-            DefaultRes.<User>builder()
-                    .responseData(user)
-                    .statusCode(StatusCode.NOT_FOUND)
-                    .responseMessage(ResponseMessage.NOT_FOUND_USER)
-                    .build();
+        if (user != null) {
+            return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_USER, user);
         }
-        return DefaultRes.<User>builder()
-                .statusCode(StatusCode.NOT_FOUND)
-                .responseMessage(ResponseMessage.NOT_FOUND_USER)
-                .build();
+        return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_USER);
     }
 
+    /**
+     * 회원 가입
+     * @param signUpReq
+     * @return
+     */
     @Transactional
     @Override
     public DefaultRes save(final SignUpReq signUpReq) {
-        if(signUpReq.checkProperties()) {
+        if (signUpReq.checkProperties()) {
             try {
                 userMapper.save(signUpReq);
-                DefaultRes.builder()
-                        .statusCode(StatusCode.CREATED)
-                        .responseMessage(ResponseMessage.CREATED_USER)
-                        .build();
-            }catch (Exception e) {
-                DefaultRes.builder()
-                        .statusCode(StatusCode.INTERNAL_SERVER_ERROR)
-                        .responseMessage(ResponseMessage.INTERNAL_SERVER_ERROR)
-                        .build();
+                return DefaultRes.res(StatusCode.CREATED, ResponseMessage.CREATED_USER);
+            } catch (Exception e) {
+                return DefaultRes.res(StatusCode.INTERNAL_SERVER_ERROR, ResponseMessage.INTERNAL_SERVER_ERROR);
             }
         }
-        return null;
+        return DefaultRes.res(StatusCode.BAD_REQUEST, ResponseMessage.FAIL_UPDATE_USER);
     }
 
+
+    /**
+     * 회원 정보 수정
+     * @param userIdx
+     * @param signUpReq
+     * @return
+     */
+    @Transactional
     @Override
-    public DefaultRes<User> update(final int userIdx, final User user) {
+    public DefaultRes<User> update(final int userIdx, final SignUpReq signUpReq) {
+        final User temp = userMapper.findByUserIdx(userIdx);
 
-        return null;
+        if (temp == null)
+            return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_USER);
+        if (!signUpReq.checkProperties())
+            return DefaultRes.res(StatusCode.BAD_REQUEST, ResponseMessage.FAIL_UPDATE_USER);
+        try {
+            userMapper.save(signUpReq);
+            final User user = userMapper.findByUserIdx(userIdx);
+            return DefaultRes.res(StatusCode.NO_CONTENT, ResponseMessage.UPDATE_USER, user);
+        } catch (Exception e) {
+            return DefaultRes.res(StatusCode.INTERNAL_SERVER_ERROR, ResponseMessage.INTERNAL_SERVER_ERROR);
+        }
     }
 
+    /**
+     * 회원 탈퇴
+     * @param userIdx
+     * @return
+     */
+    @Transactional
     @Override
     public DefaultRes deleteByUserIdx(final int userIdx) {
-        return null;
+        final User user = userMapper.findByUserIdx(userIdx);
+        if (user != null) {
+            try {
+                userMapper.deleteByUserIdx(userIdx);
+                return DefaultRes.res(StatusCode.NO_CONTENT, ResponseMessage.DELETE_USER);
+            }catch (Exception e) {
+                return DefaultRes.res(StatusCode.INTERNAL_SERVER_ERROR, ResponseMessage.INTERNAL_SERVER_ERROR);
+            }
+        }
+        return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_USER);
     }
 }

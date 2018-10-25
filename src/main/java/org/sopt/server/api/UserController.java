@@ -1,6 +1,5 @@
 package org.sopt.server.api;
 
-import org.sopt.server.dto.User;
 import org.sopt.server.model.DefaultRes;
 import org.sopt.server.model.SignUpReq;
 import org.sopt.server.service.UserService;
@@ -37,6 +36,7 @@ public class UserController {
         try{
             return new ResponseEntity<>(userService.findByUserIdx(userIdx), HttpStatus.OK);
         }catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

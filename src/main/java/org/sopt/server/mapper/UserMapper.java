@@ -4,12 +4,22 @@ import org.apache.ibatis.annotations.*;
 import org.sopt.server.dto.User;
 import org.sopt.server.model.SignUpReq;
 
+import java.util.Optional;
+
 /**
  * Created by ds on 2018-10-20.
  */
 
 @Mapper
 public interface UserMapper {
+
+    /**
+     * Optional 테스트
+     * @param userIdx
+     * @return
+     */
+    @Select("SELECT * FROM user WHERE u_id = #{u_id}")
+    Optional<User> findByUserIdx1(@Param("u_id") final int userIdx);
 
     /**
      * 로그인
@@ -45,7 +55,7 @@ public interface UserMapper {
      * @return
      */
     @Update("UPDATE user SET WHERE u_id = #{u_id}")
-    void update(@Param("u_id")final int userIdx, final SignUpReq signUpReq);
+    void update(@Param("u_id") final int userIdx, final SignUpReq signUpReq);
 
     /**
      * 회원 탈퇴

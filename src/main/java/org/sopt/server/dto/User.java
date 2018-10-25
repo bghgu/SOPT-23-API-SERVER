@@ -1,6 +1,9 @@
 package org.sopt.server.dto;
 
 import lombok.Data;
+import org.sopt.server.model.DefaultRes;
+import org.sopt.server.utils.ResponseMessage;
+import org.sopt.server.utils.StatusCode;
 
 import java.io.Serializable;
 
@@ -18,4 +21,20 @@ public class User implements Serializable {
     private String u_part;
     private String u_profile;
     private String u_email;
+
+    public DefaultRes<User> res404() {
+        return DefaultRes.<User>builder()
+                .statusCode(StatusCode.NOT_FOUND)
+                .responseMessage(ResponseMessage.NOT_FOUND_USER)
+                .build();
+    }
+
+    public DefaultRes<User> res200() {
+        return DefaultRes.<User>builder()
+                .responseData(this)
+                .statusCode(StatusCode.OK)
+                .responseMessage(ResponseMessage.READ_USER)
+                .build();
+    }
+
 }

@@ -12,7 +12,7 @@
         <!--AND u_password = #{u_password}-->
     <!--</select>-->
 
-    <select id="findByUserIdx" parameterType="int" resultType="org.sopt.server.dto.User">
+    <select id="findByUserIdx1" parameterType="int" resultType="org.sopt.server.dto.User">
         SELECT *
         FROM user
         WHERE u_id = #{u_id}

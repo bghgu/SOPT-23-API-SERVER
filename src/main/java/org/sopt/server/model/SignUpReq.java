@@ -18,31 +18,31 @@ public class SignUpReq {
     private String email;
 
     public boolean checkProperties() {
-        if(existsByEmail()) return false;
-        if(existsByPassword()) return false;
-        if(existsByPart()) return false;
-        if(existsByName()) return false;
+        if(!existsByEmail()) return false;
+        if(!existsByPassword()) return false;
+        if(!existsByPart()) return false;
+        if(!existsByName()) return false;
         return true;
     }
 
     public boolean existsByName() {
         if(name == null) return false;
-        return false;
+        return true;
     }
 
     public boolean existsByPassword() {
         if(password == null) return false;
-        return false;
+        return true;
     }
 
     public boolean existsByPart() {
         if(part == null) return false;
-        return false;
+        return true;
     }
 
     public boolean existsByEmail() {
         if(email == null) return false;
-        return false;
+        return true;
     }
 
 }

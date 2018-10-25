@@ -1,14 +1,12 @@
 package org.sopt.server.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 /**
  * Created by ds on 2018-10-23.
  */
 
+@Setter
 @Getter
 @Builder
 @NoArgsConstructor
@@ -25,5 +23,17 @@ public class DefaultRes<T> {
         this.statusCode = statusCode;
         this.responseMessage = responseMessage;
         this.responseData = null;
+    }
+
+    public static<T> DefaultRes<T> res(final int statusCode, final String responseMessage) {
+        return res(statusCode, responseMessage, null);
+    }
+
+    public static<T> DefaultRes<T> res(final int statusCode, final String responseMessage, final T t) {
+        return DefaultRes.<T>builder()
+                .responseData(t)
+                .statusCode(statusCode)
+                .responseMessage(responseMessage)
+                .build();
     }
 }
