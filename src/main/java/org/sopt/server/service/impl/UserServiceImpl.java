@@ -30,15 +30,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public DefaultRes findByUserIdx(final int userIdx) {
-
-//        final Optional<User> user = userMapper.findByUserIdx1(userIdx);
-//        if(user.isPresent()) {
-//            return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_USER, user);
-//        }
-
         final User user = userMapper.findByUserIdx(userIdx);
         if (user != null) {
-            return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_USER, user);
+            return DefaultRes.res(StatusCode.OK, ResponseMessage.READ_USER, user);
         }
         return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_USER);
     }
@@ -56,7 +50,7 @@ public class UserServiceImpl implements UserService {
                 userMapper.save(signUpReq);
                 return DefaultRes.res(StatusCode.CREATED, ResponseMessage.CREATED_USER);
             } catch (Exception e) {
-                return DefaultRes.res(StatusCode.INTERNAL_SERVER_ERROR, ResponseMessage.INTERNAL_SERVER_ERROR);
+                return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
             }
         }
         return DefaultRes.res(StatusCode.BAD_REQUEST, ResponseMessage.FAIL_UPDATE_USER);
@@ -73,7 +67,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public DefaultRes<User> update(final int userIdx, final SignUpReq signUpReq) {
         final User temp = userMapper.findByUserIdx(userIdx);
-
         if (temp == null)
             return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_USER);
         if (!signUpReq.checkProperties())
@@ -81,9 +74,9 @@ public class UserServiceImpl implements UserService {
         try {
             userMapper.save(signUpReq);
             final User user = userMapper.findByUserIdx(userIdx);
-            return DefaultRes.res(StatusCode.NO_CONTENT, ResponseMessage.UPDATE_USER, user);
+            return DefaultRes.res(StatusCode.OK, ResponseMessage.UPDATE_USER, user);
         } catch (Exception e) {
-            return DefaultRes.res(StatusCode.INTERNAL_SERVER_ERROR, ResponseMessage.INTERNAL_SERVER_ERROR);
+            return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
         }
     }
 
@@ -101,7 +94,7 @@ public class UserServiceImpl implements UserService {
                 userMapper.deleteByUserIdx(userIdx);
                 return DefaultRes.res(StatusCode.NO_CONTENT, ResponseMessage.DELETE_USER);
             }catch (Exception e) {
-                return DefaultRes.res(StatusCode.INTERNAL_SERVER_ERROR, ResponseMessage.INTERNAL_SERVER_ERROR);
+                return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
             }
         }
         return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_USER);

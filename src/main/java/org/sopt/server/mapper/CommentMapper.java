@@ -39,19 +39,19 @@ public interface CommentMapper {
 
     /**
      * 댓글 좋아요
-     * @param likeCounts
      * @param commentIdx
+     * @param likeCounts
      */
     @Update("UPDATE comment SET c_lie = #{c_like} where c_id = #{c_id}")
-    void like(@Param("c_like") final int likeCounts, @Param("c_id") final int commentIdx);
+    void like(@Param("c_id") final int commentIdx, @Param("c_like") final int likeCounts);
 
     /**
      * 댓글 수정
-     * @param content
      * @param commentIdx
+     * @param comment
      */
     @Update("UPDATE comment SET() WHERE c_id = #{c_id}")
-    void updateByCommentIdx(final Content content, @Param("c_id") final int commentIdx);
+    void updateByCommentIdx(@Param("c_id") final int commentIdx, final Comment comment);
 
     //댓글 삭제
     @Delete("DELETE FROM comment WHERE c_id = #{c_id}")

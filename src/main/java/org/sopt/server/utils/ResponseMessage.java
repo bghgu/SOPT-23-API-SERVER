@@ -22,4 +22,6 @@ public class ResponseMessage {
 
     public static final String INTERNAL_SERVER_ERROR = "서버 내부 에러";
     public static final String SERVICE_UNAVAILABLE = "현재 서비스를 사용하실 수 없습니다.\n잠시후 다시 시도해 주세요.";
+
+    public static final String DB_ERROR = "데이터베이스 에러";
 }

@@ -1,6 +1,8 @@
 package org.sopt.server.model;
 
 import lombok.*;
+import org.sopt.server.utils.ResponseMessage;
+import org.sopt.server.utils.StatusCode;
 
 /**
  * Created by ds on 2018-10-23.
@@ -36,4 +38,6 @@ public class DefaultRes<T> {
                 .responseMessage(responseMessage)
                 .build();
     }
+
+    public static final DefaultRes FAIL_DEFAULT_RES = new DefaultRes(StatusCode.INTERNAL_SERVER_ERROR, ResponseMessage.INTERNAL_SERVER_ERROR);
 }

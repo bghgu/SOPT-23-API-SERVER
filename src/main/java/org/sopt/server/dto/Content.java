@@ -22,4 +22,8 @@ public class Content implements Serializable {
     private int u_id;
     private int b_like;
     private String b_photo;
+
+    public void likes() {
+        this.b_like++;
+    }
 }
