@@ -40,7 +40,7 @@ public class UserController {
         try {
             final DefaultRes<Boolean> defaultRes = JwtUtils.checkAuth(jwt, userIdx);
             if (defaultRes.getResponseData())
-                return new ResponseEntity<>(userService.findByUserIdx(userIdx), HttpStatus.OK);
+                return new ResponseEntity<>(userService.findByUserIdx(JwtUtils.decode(jwt).get().getUser_idx(), userIdx), HttpStatus.OK);
             return new ResponseEntity<>(defaultRes, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();

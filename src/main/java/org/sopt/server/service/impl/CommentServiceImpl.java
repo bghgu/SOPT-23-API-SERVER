@@ -74,7 +74,7 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentMapper.findByCommentIdx(commentIdx);
         comment.likes();
         try {
-            commentMapper.like(commentIdx, comment.getC_like());
+            commentMapper.like(commentIdx, comment);
             comment = commentMapper.findByCommentIdx(commentIdx);
             return DefaultRes.res(StatusCode.OK, "", comment);
         }catch (Exception e) {

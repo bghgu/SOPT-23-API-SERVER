@@ -13,6 +13,7 @@ import org.sopt.server.utils.ResponseMessage;
 import org.sopt.server.utils.StatusCode;
 import org.springframework.beans.factory.annotation.Value;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 import static com.auth0.jwt.JWT.require;
@@ -117,5 +118,4 @@ public class JwtUtils {
             this.token = token;
         }
     }
-
 }

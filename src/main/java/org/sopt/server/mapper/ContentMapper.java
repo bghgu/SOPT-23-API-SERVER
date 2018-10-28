@@ -38,12 +38,12 @@ public interface ContentMapper {
 
     /**
      * 글 좋아요
-     * @param likeCounts
      * @param contentIdx
+     * @param content
      * @return
      */
     @Update("UPDATE board SET b_like = #{b_like} WHERE b_id = #{b_id}")
-    void like(@Param("b_like") final int likeCounts, @Param("b_id") final int contentIdx);
+    void like(@Param("b_id") final int contentIdx, final Content content);
 
     /**
      * 글 수정

@@ -6,6 +6,7 @@ import org.sopt.server.service.ContentService;
 import org.sopt.server.utils.ResponseMessage;
 import org.sopt.server.utils.StatusCode;
 import org.sopt.server.utils.auth.Auth;
+import org.sopt.server.utils.auth.JwtUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,7 +45,7 @@ public class ContentController {
             @RequestParam(value = "keyword", defaultValue = "", required = false) final String keyword
     ) {
         try {
-            return new ResponseEntity(HttpStatus.OK);
+            return new ResponseEntity<>(contentService.findAll(), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -56,9 +57,12 @@ public class ContentController {
      * @return
      */
     @GetMapping("/{contentIdx}")
-    public ResponseEntity getContents(@PathVariable final int contentIdx) {
+    public ResponseEntity getContents(
+            @RequestHeader("Authorization") final String jwt,
+            @PathVariable final int contentIdx) {
         try {
-            return new ResponseEntity(HttpStatus.OK);
+            final int temp = JwtUtils.decode(jwt).get().getUser_idx();
+            return new ResponseEntity<>(contentService.findByContentIdx(temp, contentIdx), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -66,16 +70,17 @@ public class ContentController {
 
     /**
      * 글 작성
-     * @param board
+     * @param content
      * @return
      */
     @Auth
     @PostMapping("")
     public ResponseEntity writeContents(
             @RequestHeader("Authorization") final String jwt,
-            @RequestBody final Content board) {
+            @RequestBody Content content) {
         try {
-            return new ResponseEntity(HttpStatus.OK);
+            content.setU_id(JwtUtils.decode(jwt).get().getUser_idx());
+            return new ResponseEntity<>(contentService.save(content), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -92,7 +97,8 @@ public class ContentController {
             @RequestHeader("Authorization") final String jwt,
             @PathVariable final int contentIdx) {
         try {
-            return new ResponseEntity(HttpStatus.OK);
+            final int temp = JwtUtils.decode(jwt).get().getUser_idx();
+            return new ResponseEntity<>(contentService.likes(temp, contentIdx), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -107,9 +113,11 @@ public class ContentController {
     @PutMapping("/{contentIdx}")
     public ResponseEntity updateContents(
             @RequestHeader("Authorization") final String jwt,
-            @PathVariable final int contentIdx) {
+            @PathVariable final int contentIdx,
+            @RequestBody Content content) {
         try {
-            return new ResponseEntity(HttpStatus.OK);
+            content.setU_id(JwtUtils.decode(jwt).get().getUser_idx());
+            return new ResponseEntity<>(contentService.update(contentIdx, content), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -126,7 +134,8 @@ public class ContentController {
             @RequestHeader("Authorization") final String jwt,
             @PathVariable final int contentIdx) {
         try {
-            return new ResponseEntity(HttpStatus.OK);
+            final int temp = JwtUtils.decode(jwt).get().getUser_idx();
+            return new ResponseEntity<>(contentService.deleteByContentIdx(temp, contentIdx), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }

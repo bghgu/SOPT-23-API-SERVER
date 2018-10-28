@@ -30,12 +30,12 @@ public class UserServiceImpl implements UserService {
      * @return DefaultRes
      */
     @Override
-    public DefaultRes findByUserIdx(final int userIdx) {
+    public DefaultRes findByUserIdx(final int auth, final int userIdx) {
         //사용자 조회
-        final User user = userMapper.findByUserIdx(userIdx);
-        if (user != null) {
+        User user = userMapper.findByUserIdx(userIdx);
+        if(userIdx == auth) user.setAuth(true);
+        if (user != null)
             return DefaultRes.res(StatusCode.OK, ResponseMessage.READ_USER, user);
-        }
         return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_USER);
     }
 
@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
                 return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
             }
         }
-        return DefaultRes.res(StatusCode.BAD_REQUEST, ResponseMessage.FAIL_UPDATE_USER);
+        return DefaultRes.res(StatusCode.BAD_REQUEST, ResponseMessage.FAIL_CREATE_USER);
     }
 
 

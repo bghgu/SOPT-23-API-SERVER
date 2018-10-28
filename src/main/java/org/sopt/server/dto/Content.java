@@ -22,8 +22,26 @@ public class Content implements Serializable {
     private int u_id;
     private int b_like;
     private String b_photo;
+    private boolean auth;
+    private boolean like;
 
     public void likes() {
         this.b_like++;
+    }
+
+    public boolean checkProperties() {
+        if(!existsByTitle()) return false;
+        if(!existsByContents()) return false;
+        return true;
+    }
+
+    public boolean existsByTitle() {
+        if(b_title.isEmpty()) return false;
+        return true;
+    }
+
+    public boolean existsByContents() {
+        if(b_contents.isEmpty()) return false;
+        return true;
     }
 }

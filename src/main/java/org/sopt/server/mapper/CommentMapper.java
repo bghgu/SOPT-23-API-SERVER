@@ -40,10 +40,10 @@ public interface CommentMapper {
     /**
      * 댓글 좋아요
      * @param commentIdx
-     * @param likeCounts
+     * @param comment
      */
     @Update("UPDATE comment SET c_lie = #{c_like} where c_id = #{c_id}")
-    void like(@Param("c_id") final int commentIdx, @Param("c_like") final int likeCounts);
+    void like(@Param("c_id") final int commentIdx, final Comment comment);
 
     /**
      * 댓글 수정

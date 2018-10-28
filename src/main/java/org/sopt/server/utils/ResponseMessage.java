@@ -16,7 +16,33 @@ public class ResponseMessage {
     public static final String FAIL_UPDATE_USER = "회원 정보 수정 실패";
     public static final String DELETE_USER = "회원 탈퇴 성공";
 
-    public static final String ALREADY_USER = "이미 존재하는 회원입니다.";
+    public static final String READ_ALL_CONTENTS = "모든 글 조회 성공";
+    public static final String READ_CONTENT = "글 조회 성공";
+    public static final String NOT_FOUND_CONTENT = "글이 존재하지 않습니다.";
+    public static final String CREATE_CONTENT = "글 작성 성공";
+    public static final String FAIL_CREATE_CONTENT = "글 작성 실패";
+    public static final String UPDATE_CONTENT = "글 수정 성공";
+    public static final String FAIL_UPDATE_CONTENT = "글 수정 실패";
+    public static final String DELETE_CONTENT = "글 삭제 성공";
+    public static final String FAIL_DELETE_CONTENT = "글 삭제 실패";
+    public static final String LIKE_CONTENT = "글 좋아요";
+    public static final String UNLIKE_COTENT = "글 좋아요 해제";
+    public static final String FAIL_LIKE_CONTENT = "글 좋아요 실패";
+    public static final String FAIL_UNLIKE_COTENT = "글 좋아요 해제";
+
+//    public static final String READ_ALL_COMMENTS = "모든 댓글 조회 성공";
+//    public static final String READ_COMMENT = "댓글 조회 성공";
+//    public static final String NOT_FOUND_COMMENT = "댓글이 존재하지 않습니다.";
+//    public static final String CREATE_COMMENT = "댓글 작성 성공";
+//    public static final String FAIL_CREATE_COMMENT = "댓글 작성 실패";
+//    public static final String UPDATE_COMMENT = "댓글 수정 성공";
+//    public static final String FAIL_UPDATE_COMMENT = "댓글 수정 실패";
+//    public static final String DELETE_COMMENT = "댓글 삭제 성공";
+//    public static final String FAIL_DELETE_COMMENT = "댓글 삭제 실패";
+//    public static final String LIKE_COMMENT = "댓글 좋아요";
+//    public static final String UNLIKE_COMMENT = "댓글 좋아요 해제";
+//    public static final String FAIL_COMMENT = "댓글 좋아요 실패";
+//    public static final String FAIL_UNLIKE_COMMENT = "댓글 좋아요 해제";
 
     public static final String AUTHORIZED = "인증 성공";
     public static final String UNAUTHORIZED = "인증 실패";

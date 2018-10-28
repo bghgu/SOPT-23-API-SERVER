@@ -30,7 +30,6 @@ public class AuthController {
         this.authService = authService;
     }
 
-
     /**
      * 로그인
      * @param loginReq 로그인 객체

@@ -21,6 +21,7 @@ public class User implements Serializable {
     private String u_part;
     private String u_profile;
     private String u_email;
+    private boolean auth;
 
     public DefaultRes<User> res404() {
         return DefaultRes.<User>builder()
