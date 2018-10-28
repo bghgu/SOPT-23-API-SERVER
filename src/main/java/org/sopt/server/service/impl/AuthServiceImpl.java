@@ -4,9 +4,8 @@ import org.sopt.server.dto.User;
 import org.sopt.server.mapper.UserMapper;
 import org.sopt.server.model.DefaultRes;
 import org.sopt.server.model.LoginReq;
-import org.sopt.server.model.TokenRes;
 import org.sopt.server.service.AuthService;
-import org.sopt.server.service.JwtService;
+import org.sopt.server.utils.auth.JwtUtils;
 import org.sopt.server.utils.ResponseMessage;
 import org.sopt.server.utils.StatusCode;
 import org.springframework.stereotype.Service;
@@ -20,28 +19,18 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserMapper userMapper;
 
-    private final JwtService jwtService;
-
-    public AuthServiceImpl(final UserMapper userMapper, final JwtService jwtService) {
+    public AuthServiceImpl(final UserMapper userMapper) {
         this.userMapper = userMapper;
-        this.jwtService = jwtService;
     }
 
     @Override
-    public DefaultRes<TokenRes> login(final LoginReq loginReq) {
+    public DefaultRes<JwtUtils.TokenRes> login(final LoginReq loginReq) {
         final User user = userMapper.findByEmailAndPassword(loginReq.getEmail(), loginReq.getPassword());
         if (user != null) {
-            final TokenRes tokenDto = new TokenRes(jwtService.create(user.getU_id()));
-            return DefaultRes.<TokenRes>builder()
-                    .statusCode(StatusCode.OK)
-                    .responseMessage(ResponseMessage.LOGIN_SUCCESS)
-                    .responseData(tokenDto)
-                    .build();
+            final JwtUtils.TokenRes tokenDto = new JwtUtils.TokenRes(JwtUtils.create(user.getU_id()).get());
+            return DefaultRes.res(StatusCode.OK, ResponseMessage.LOGIN_SUCCESS, tokenDto);
         }
-        return DefaultRes.<TokenRes>builder()
-                .statusCode(StatusCode.BAD_REQUEST)
-                .responseMessage(ResponseMessage.LOGIN_FAIL)
-                .build();
+        return DefaultRes.res(StatusCode.BAD_REQUEST, ResponseMessage.LOGIN_FAIL);
     }
 
     @Override

@@ -24,12 +24,14 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * 마이페이지 조회
-     * @param userIdx
-     * @return
+     * 사용자 정보 조회
+     *
+     * @param userIdx 사용자 고유 번호
+     * @return DefaultRes
      */
     @Override
     public DefaultRes findByUserIdx(final int userIdx) {
+        //사용자 조회
         final User user = userMapper.findByUserIdx(userIdx);
         if (user != null) {
             return DefaultRes.res(StatusCode.OK, ResponseMessage.READ_USER, user);
@@ -39,12 +41,14 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 회원 가입
-     * @param signUpReq
-     * @return
+     * 파일업로드 추가 해야함
+     * @param signUpReq 회원 가입 정보
+     * @return DefaultRes
      */
     @Transactional
     @Override
     public DefaultRes save(final SignUpReq signUpReq) {
+        //모든 항목이 있는지 검사
         if (signUpReq.checkProperties()) {
             try {
                 userMapper.save(signUpReq);
@@ -59,22 +63,25 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 회원 정보 수정
-     * @param userIdx
-     * @param signUpReq
-     * @return
+     * 파일업로드 추가 해야함
+     * @param userIdx 사용자 고유 번호
+     * @param signUpReq 수정할 데이터
+     * @return DefaultRes
      */
     @Transactional
     @Override
     public DefaultRes<User> update(final int userIdx, final SignUpReq signUpReq) {
-        final User temp = userMapper.findByUserIdx(userIdx);
+        //사용자 조회
+        User temp = userMapper.findByUserIdx(userIdx);
         if (temp == null)
             return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_USER);
+        //수정할 모든 항목 조회
         if (!signUpReq.checkProperties())
             return DefaultRes.res(StatusCode.BAD_REQUEST, ResponseMessage.FAIL_UPDATE_USER);
         try {
-            userMapper.save(signUpReq);
-            final User user = userMapper.findByUserIdx(userIdx);
-            return DefaultRes.res(StatusCode.OK, ResponseMessage.UPDATE_USER, user);
+            userMapper.update(userIdx, signUpReq);
+            temp = userMapper.findByUserIdx(userIdx);
+            return DefaultRes.res(StatusCode.OK, ResponseMessage.UPDATE_USER, temp);
         } catch (Exception e) {
             return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
         }
@@ -82,18 +89,20 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 회원 탈퇴
-     * @param userIdx
-     * @return
+     *
+     * @param userIdx 사용자 고유 번호
+     * @return DefaultRes
      */
     @Transactional
     @Override
     public DefaultRes deleteByUserIdx(final int userIdx) {
+        //회원 조회
         final User user = userMapper.findByUserIdx(userIdx);
         if (user != null) {
             try {
                 userMapper.deleteByUserIdx(userIdx);
                 return DefaultRes.res(StatusCode.NO_CONTENT, ResponseMessage.DELETE_USER);
-            }catch (Exception e) {
+            } catch (Exception e) {
                 return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
             }
         }

@@ -2,6 +2,7 @@ package org.sopt.server.api;
 
 import org.sopt.server.dto.Comment;
 import org.sopt.server.model.DefaultRes;
+import org.sopt.server.service.CommentService;
 import org.sopt.server.utils.ResponseMessage;
 import org.sopt.server.utils.StatusCode;
 import org.sopt.server.utils.auth.Auth;
@@ -18,6 +19,12 @@ public class CommentController {
 
     private static final DefaultRes FAIL_DEFAULT_RES = new DefaultRes(StatusCode.INTERNAL_SERVER_ERROR, ResponseMessage.INTERNAL_SERVER_ERROR);
 
+    private final CommentService commentService;
+
+    public CommentController(final CommentService commentService) {
+        this.commentService = commentService;
+    }
+
     /**
      * 해당 글의 모든 댓글 조회
      *
@@ -27,7 +34,7 @@ public class CommentController {
     @GetMapping("/contents/{contentIdx}/comments")
     public ResponseEntity getAllComments(@PathVariable final int contentIdx) {
         try {
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(commentService.findByContentIdx(contentIdx), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -42,7 +49,7 @@ public class CommentController {
     @GetMapping("/comments/{commentIdx}")
     public ResponseEntity getComments(@PathVariable final int commentIdx) {
         try {
-            return new ResponseEntity(HttpStatus.OK);
+            return new ResponseEntity<>(commentService.findByCommentIdx(commentIdx), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -61,7 +68,7 @@ public class CommentController {
             @PathVariable final int contentIdx,
             @RequestBody final Comment comment) {
         try {
-            return new ResponseEntity(HttpStatus.OK);
+            return new ResponseEntity<>(commentService.save(contentIdx, comment), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -79,7 +86,7 @@ public class CommentController {
             @RequestHeader("Authorization") final String jwt,
             @PathVariable final int commentIdx) {
         try {
-            return new ResponseEntity(HttpStatus.OK);
+            return new ResponseEntity<>(commentService.likes(commentIdx), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -95,9 +102,10 @@ public class CommentController {
     @PutMapping("/comments/{commentIdx}")
     public ResponseEntity updateComment(
             @RequestHeader("Authorization") final String jwt,
-            @PathVariable final int commentIdx) {
+            @PathVariable final int commentIdx,
+            @RequestBody final Comment comment) {
         try {
-            return new ResponseEntity(HttpStatus.OK);
+            return new ResponseEntity<>(commentService.update(commentIdx, comment), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -115,7 +123,7 @@ public class CommentController {
             @RequestHeader("Authorization") final String jwt,
             @PathVariable final int commentIdx) {
         try {
-            return new ResponseEntity(HttpStatus.OK);
+            return new ResponseEntity<>(commentService.deleteByCommentIdx(commentIdx), HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);

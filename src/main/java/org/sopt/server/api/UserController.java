@@ -6,6 +6,7 @@ import org.sopt.server.service.UserService;
 import org.sopt.server.utils.ResponseMessage;
 import org.sopt.server.utils.StatusCode;
 import org.sopt.server.utils.auth.Auth;
+import org.sopt.server.utils.auth.JwtUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,14 +29,20 @@ public class UserController {
 
     /**
      * 마이페이지 조회
+     *
      * @param userIdx
      * @return
      */
     @GetMapping("/{userIdx}")
-    public ResponseEntity getMyPage(@PathVariable final int userIdx) {
-        try{
-            return new ResponseEntity<>(userService.findByUserIdx(userIdx), HttpStatus.OK);
-        }catch (Exception e) {
+    public ResponseEntity getMyPage(
+            @RequestHeader("Authorization") final String jwt,
+            @PathVariable final int userIdx) {
+        try {
+            final DefaultRes<Boolean> defaultRes = JwtUtils.checkAuth(jwt, userIdx);
+            if (defaultRes.getResponseData())
+                return new ResponseEntity<>(userService.findByUserIdx(userIdx), HttpStatus.OK);
+            return new ResponseEntity<>(defaultRes, HttpStatus.OK);
+        } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -43,20 +50,22 @@ public class UserController {
 
     /**
      * 회원 가입
+     *
      * @param signUpReq
      * @return
      */
     @PostMapping("")
     public ResponseEntity signUp(@RequestBody final SignUpReq signUpReq) {
-        try{
+        try {
             return new ResponseEntity<>(userService.save(signUpReq), HttpStatus.OK);
-        }catch (Exception e) {
+        } catch (Exception e) {
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
      * 내 정보 수정
+     *
      * @param userIdx
      * @return
      */
@@ -66,24 +75,33 @@ public class UserController {
             @RequestHeader("Authorization") final String jwt,
             @PathVariable final int userIdx,
             @RequestBody final SignUpReq signUpReq) {
-        try{
-            return new ResponseEntity<>(userService.update(userIdx, signUpReq) , HttpStatus.OK);
-        }catch (Exception e) {
+        try {
+            final DefaultRes<Boolean> defaultRes = JwtUtils.checkAuth(jwt, userIdx);
+            if (defaultRes.getResponseData())
+                return new ResponseEntity<>(userService.update(userIdx, signUpReq), HttpStatus.OK);
+            return new ResponseEntity<>(defaultRes, HttpStatus.OK);
+        } catch (Exception e) {
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
      * 회원 탈퇴
+     *
      * @param userIdx
      * @return
      */
     @Auth
     @DeleteMapping("/{userIdx}")
-    public ResponseEntity goodBye(@PathVariable final int userIdx) {
-        try{
-            return new ResponseEntity<>(userService.deleteByUserIdx(userIdx), HttpStatus.OK);
-        }catch (Exception e) {
+    public ResponseEntity goodBye(
+            @RequestHeader("Authorization") final String jwt,
+            @PathVariable final int userIdx) {
+        try {
+            final DefaultRes<Boolean> defaultRes = JwtUtils.checkAuth(jwt, userIdx);
+            if (defaultRes.getResponseData())
+                return new ResponseEntity<>(userService.deleteByUserIdx(userIdx), HttpStatus.OK);
+            return new ResponseEntity<>(defaultRes, HttpStatus.OK);
+        } catch (Exception e) {
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

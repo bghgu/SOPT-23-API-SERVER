@@ -5,8 +5,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.sopt.server.dto.User;
 import org.sopt.server.model.DefaultRes;
-import org.sopt.server.model.Token;
-import org.sopt.server.service.JwtService;
 import org.sopt.server.service.UserService;
 import org.sopt.server.utils.ResponseMessage;
 import org.sopt.server.utils.StatusCode;
@@ -15,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Optional;
 
 /**
  * Created by ds on 2018-10-23.
@@ -36,15 +35,12 @@ public class AuthAspect {
 
     private final UserService userService;
 
-    private final JwtService jwtService;
-
     /**
      * Repository 의존성 주입
      */
-    public AuthAspect(final HttpServletRequest httpServletRequest, final UserService userService, final JwtService jwtService) {
+    public AuthAspect(final HttpServletRequest httpServletRequest, final UserService userService) {
         this.httpServletRequest = httpServletRequest;
         this.userService = userService;
-        this.jwtService = jwtService;
     }
 
     @Around("@annotation(org.sopt.server.utils.auth.Auth)")
@@ -57,20 +53,21 @@ public class AuthAspect {
         }
 
         //토큰 해독
-        final Token token = jwtService.decode(jwt);
+        final Optional<JwtUtils.Token> token = JwtUtils.decode(jwt);
 
         //토큰 검사
-        if (token == null) {
+        if (token.isPresent()) {
             return RES_RESPONSE_ENTITY;
+        } else {
+            final User user = userService.findByUserIdx(token.get().getUser_idx()).getResponseData();
+
+            //유효 사용자 검사
+            if (user == null) {
+                return RES_RESPONSE_ENTITY;
+            }
+
+            return pjp.proceed(pjp.getArgs());
         }
 
-        final User user = userService.findByUserIdx(token.getUser_idx()).getResponseData();
-
-        //유효 사용자 검사
-        if (user == null) {
-            return RES_RESPONSE_ENTITY;
-        }
-
-        return pjp.proceed(pjp.getArgs());
     }
 }

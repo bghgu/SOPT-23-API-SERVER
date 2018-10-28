@@ -2,6 +2,7 @@ package org.sopt.server.api;
 
 import org.sopt.server.dto.Content;
 import org.sopt.server.model.DefaultRes;
+import org.sopt.server.service.ContentService;
 import org.sopt.server.utils.ResponseMessage;
 import org.sopt.server.utils.StatusCode;
 import org.sopt.server.utils.auth.Auth;
@@ -18,6 +19,12 @@ import org.springframework.web.bind.annotation.*;
 public class ContentController {
 
     private static final DefaultRes FAIL_DEFAULT_RES = new DefaultRes(StatusCode.INTERNAL_SERVER_ERROR, ResponseMessage.INTERNAL_SERVER_ERROR);
+
+    private final ContentService contentService;
+
+    public ContentController(final ContentService contentService) {
+        this.contentService = contentService;
+    }
 
     /**
      * 모든 게시글 조회
