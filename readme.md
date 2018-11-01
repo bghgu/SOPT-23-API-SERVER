@@ -1,6 +1,6 @@
-# kakaoIX Report
+# 23rd SOPT test API Server
 
-API 문서 : https://github.com/bghgu/kakaoIX-report/wiki
+API 문서 : https://github.com/bghgu/SOPT-23-API-SERVER/wiki
 
 docker hub에서 이미지를 다운 받으실 수 있습니다.
 
