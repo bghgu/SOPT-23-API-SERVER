@@ -1,5 +1,6 @@
 package org.sopt.server.utils.auth;
 
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -19,6 +20,7 @@ import java.util.Optional;
  * Created by ds on 2018-10-23.
  */
 
+@Slf4j
 @Component
 @Aspect
 public class AuthAspect {
@@ -28,7 +30,7 @@ public class AuthAspect {
     /**
      * 실패 시 기본 반환 Response
      */
-    private final static DefaultRes DEFAULT_RES = DefaultRes.builder().statusCode(StatusCode.UNAUTHORIZED).responseMessage(ResponseMessage.UNAUTHORIZED).build();
+    private final static DefaultRes DEFAULT_RES = DefaultRes.builder().status(StatusCode.UNAUTHORIZED).message(ResponseMessage.UNAUTHORIZED).build();
     private final static ResponseEntity<DefaultRes> RES_RESPONSE_ENTITY = new ResponseEntity<>(DEFAULT_RES, HttpStatus.UNAUTHORIZED);
 
     private final HttpServletRequest httpServletRequest;
@@ -56,13 +58,14 @@ public class AuthAspect {
         final Optional<JwtUtils.Token> token = JwtUtils.decode(jwt);
 
         //토큰 검사
-        if (token.isPresent()) {
+        if (!token.isPresent()) {
             return RES_RESPONSE_ENTITY;
         } else {
-            final User user = userService.findByUserIdx(token.get().getUser_idx()).getResponseData();
+            final User user = userService.findByUserIdx(-1, token.get().getUser_idx()).getData();
 
             //유효 사용자 검사
             if (user == null) {
+                log.info("없는 유저");
                 return RES_RESPONSE_ENTITY;
             }
 

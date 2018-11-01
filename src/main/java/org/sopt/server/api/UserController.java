@@ -1,7 +1,9 @@
 package org.sopt.server.api;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sopt.server.model.DefaultRes;
 import org.sopt.server.model.SignUpReq;
+import org.sopt.server.model.test;
 import org.sopt.server.service.UserService;
 import org.sopt.server.utils.ResponseMessage;
 import org.sopt.server.utils.StatusCode;
@@ -10,11 +12,16 @@ import org.sopt.server.utils.auth.JwtUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartRequest;
+
+import java.io.IOException;
 
 /**
  * Created by ds on 2018-10-23.
  */
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -38,12 +45,10 @@ public class UserController {
             @RequestHeader("Authorization") final String jwt,
             @PathVariable final int userIdx) {
         try {
-            final DefaultRes<Boolean> defaultRes = JwtUtils.checkAuth(jwt, userIdx);
-            if (defaultRes.getResponseData())
+            if (JwtUtils.checkAuth(jwt, userIdx).getData())
                 return new ResponseEntity<>(userService.findByUserIdx(JwtUtils.decode(jwt).get().getUser_idx(), userIdx), HttpStatus.OK);
-            return new ResponseEntity<>(defaultRes, HttpStatus.OK);
+            return new ResponseEntity<>(userService.findByUserIdx(0, userIdx), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -51,14 +56,15 @@ public class UserController {
     /**
      * 회원 가입
      *
-     * @param signUpReq
+     * @param
      * @return
      */
-    @PostMapping("")
-    public ResponseEntity signUp(@RequestBody final SignUpReq signUpReq) {
+    @PostMapping(value = "")
+    public ResponseEntity signUp(SignUpReq signUpReq) throws IOException {
         try {
             return new ResponseEntity<>(userService.save(signUpReq), HttpStatus.OK);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -77,7 +83,7 @@ public class UserController {
             @RequestBody final SignUpReq signUpReq) {
         try {
             final DefaultRes<Boolean> defaultRes = JwtUtils.checkAuth(jwt, userIdx);
-            if (defaultRes.getResponseData())
+            if (defaultRes.getData())
                 return new ResponseEntity<>(userService.update(userIdx, signUpReq), HttpStatus.OK);
             return new ResponseEntity<>(defaultRes, HttpStatus.OK);
         } catch (Exception e) {
@@ -98,7 +104,7 @@ public class UserController {
             @PathVariable final int userIdx) {
         try {
             final DefaultRes<Boolean> defaultRes = JwtUtils.checkAuth(jwt, userIdx);
-            if (defaultRes.getResponseData())
+            if (defaultRes.getData())
                 return new ResponseEntity<>(userService.deleteByUserIdx(userIdx), HttpStatus.OK);
             return new ResponseEntity<>(defaultRes, HttpStatus.OK);
         } catch (Exception e) {

@@ -3,6 +3,7 @@ package org.sopt.server.mapper;
 import org.apache.ibatis.annotations.*;
 import org.sopt.server.dto.User;
 import org.sopt.server.model.SignUpReq;
+import org.springframework.stereotype.Service;
 
 /**
  * Created by ds on 2018-10-20.
@@ -19,6 +20,14 @@ public interface UserMapper {
      */
     @Select("SELECT * FROM user WHERE u_email = #{u_email} AND u_password = #{u_password}")
     User findByEmailAndPassword(@Param("u_email") final String email, @Param("u_password") final String password);
+
+    /**
+     * 이메일로 회원 조회
+     * @param email 이메일
+     * @return User
+     */
+    @Select("SELECT * FROM user WHERE u_email = #{u_email}")
+    User findByEmail(@Param("u_email") final String email);
 
     /**
      * 마이페이지 조회

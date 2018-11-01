@@ -1,26 +1,34 @@
 package org.sopt.server.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sopt.server.dto.User;
 import org.sopt.server.mapper.UserMapper;
 import org.sopt.server.model.DefaultRes;
 import org.sopt.server.model.SignUpReq;
+import org.sopt.server.service.FileUploadService;
 import org.sopt.server.service.UserService;
 import org.sopt.server.utils.ResponseMessage;
 import org.sopt.server.utils.StatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+
 /**
  * Created by ds on 2018-10-23.
  */
 
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
 
-    public UserServiceImpl(final UserMapper userMapper) {
+    private final FileUploadService fileUploadService;
+
+    public UserServiceImpl(final UserMapper userMapper, final FileUploadService fileUploadService) {
         this.userMapper = userMapper;
+        this.fileUploadService = fileUploadService;
     }
 
     /**
@@ -50,12 +58,16 @@ public class UserServiceImpl implements UserService {
     public DefaultRes save(final SignUpReq signUpReq) {
         //모든 항목이 있는지 검사
         if (signUpReq.checkProperties()) {
-            try {
-                userMapper.save(signUpReq);
-                return DefaultRes.res(StatusCode.CREATED, ResponseMessage.CREATED_USER);
-            } catch (Exception e) {
-                return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
-            }
+            final User user = userMapper.findByEmail(signUpReq.getEmail());
+            if(user == null) {
+                try {
+                    signUpReq.setProfileUrl(fileUploadService.upload(signUpReq.getProfile()));
+                    userMapper.save(signUpReq);
+                    return DefaultRes.res(StatusCode.CREATED, ResponseMessage.CREATED_USER);
+                } catch (Exception e) {
+                    return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
+                }
+            }else return DefaultRes.res(StatusCode.BAD_REQUEST, ResponseMessage.ALREADY_USER);
         }
         return DefaultRes.res(StatusCode.BAD_REQUEST, ResponseMessage.FAIL_CREATE_USER);
     }
@@ -75,12 +87,13 @@ public class UserServiceImpl implements UserService {
         User temp = userMapper.findByUserIdx(userIdx);
         if (temp == null)
             return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_USER);
-        //수정할 모든 항목 조회
-        if (!signUpReq.checkProperties())
-            return DefaultRes.res(StatusCode.BAD_REQUEST, ResponseMessage.FAIL_UPDATE_USER);
+
+        signUpReq.update(temp);
+
         try {
             userMapper.update(userIdx, signUpReq);
             temp = userMapper.findByUserIdx(userIdx);
+            temp.setAuth(true);
             return DefaultRes.res(StatusCode.OK, ResponseMessage.UPDATE_USER, temp);
         } catch (Exception e) {
             return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);

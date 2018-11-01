@@ -11,9 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sopt.server.model.DefaultRes;
 import org.sopt.server.utils.ResponseMessage;
 import org.sopt.server.utils.StatusCode;
-import org.springframework.beans.factory.annotation.Value;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 import static com.auth0.jwt.JWT.require;
@@ -27,8 +25,7 @@ public class JwtUtils {
 
     private static final String ISSUER = "DoITSOPT";
 
-    @Value("${JWT.SALT}")
-    private static String SECRET;
+    private static final String SECRET = "vji2k@#49c!@!@#$knvldkm3$";
 
     /**
      * 토큰 생성
@@ -76,8 +73,10 @@ public class JwtUtils {
      * @return
      */
     public static DefaultRes<Boolean> checkAuth(final String jwt, final int userIdx) {
-        final Optional<JwtUtils.Token> token = JwtUtils.decode(jwt);
+        final Optional<JwtUtils.Token> token = decode(jwt);
         if (token.isPresent()) {
+            log.info(userIdx + "");
+            log.info(token.get().getUser_idx() + "");
             if (userIdx == token.get().getUser_idx())
                 return DefaultRes.res(StatusCode.OK, ResponseMessage.AUTHORIZED, true);
             return DefaultRes.res(StatusCode.FORBIDDEN, ResponseMessage.FORBIDDEN, false);

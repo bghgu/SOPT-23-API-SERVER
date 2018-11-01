@@ -1,6 +1,7 @@
 package org.sopt.server.api;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sopt.server.dto.User;
 import org.sopt.server.model.DefaultRes;
 import org.sopt.server.model.LoginReq;
 import org.sopt.server.service.AuthService;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * Created by ds on 2018-10-23.
@@ -40,7 +43,6 @@ public class AuthController {
         try{
             return new ResponseEntity<>(authService.login(loginReq), HttpStatus.OK);
         }catch (Exception e) {
-            e.printStackTrace();
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -55,6 +57,7 @@ public class AuthController {
         try{
             return new ResponseEntity(HttpStatus.OK);
         }catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
