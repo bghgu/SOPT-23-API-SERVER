@@ -2,6 +2,7 @@ package org.sopt.server.mapper;
 
 import org.apache.ibatis.annotations.*;
 import org.sopt.server.dto.Content;
+import org.sopt.server.model.Pagination;
 import org.sopt.server.model.SignUpReq;
 
 import java.util.List;
@@ -17,15 +18,16 @@ public interface ContentMapper {
      * 글 전체 조회
      * @return
      */
-    @Select("SELECT * FROM board")
-    List<Content> findAll();
+    //'%'||#{search_value}||'%'
+    @Select("SELECT * FROM board LIMIT #{limit} OFFSET #{offset}")
+    List<Content> findAll(final Pagination pagination);
 
     /**
      * 글 상세 조회
      * @param contentIdx
      * @return
      */
-    @Select("SELECT * FROM board WHERE b_id = {b_id}")
+    @Select("SELECT * FROM board WHERE b_id = #{b_id}")
     Content findByContentIdx(@Param("b_id") final int contentIdx);
 
     /**

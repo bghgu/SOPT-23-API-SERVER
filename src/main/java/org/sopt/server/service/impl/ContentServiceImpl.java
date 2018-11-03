@@ -1,9 +1,16 @@
 package org.sopt.server.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sopt.server.dto.Content;
+import org.sopt.server.dto.ContentLike;
+import org.sopt.server.mapper.CommentMapper;
+import org.sopt.server.mapper.ContentLikeMapper;
 import org.sopt.server.mapper.ContentMapper;
 import org.sopt.server.model.DefaultRes;
+import org.sopt.server.model.Pagination;
+import org.sopt.server.service.CommentService;
 import org.sopt.server.service.ContentService;
+import org.sopt.server.service.FileUploadService;
 import org.sopt.server.utils.ResponseMessage;
 import org.sopt.server.utils.StatusCode;
 import org.springframework.stereotype.Service;
@@ -14,13 +21,21 @@ import java.util.List;
  * Created by ds on 2018-10-23.
  */
 
+@Slf4j
 @Service
 public class ContentServiceImpl implements ContentService {
 
     private final ContentMapper contentMapper;
+    private final ContentLikeMapper contentLikeMapper;
+    private final FileUploadService fileUploadService;
 
-    public ContentServiceImpl(final ContentMapper contentMapper) {
+    public ContentServiceImpl(
+            final ContentMapper contentMapper,
+            final FileUploadService fileUploadService,
+            final ContentLikeMapper contentLikeMapper) {
         this.contentMapper = contentMapper;
+        this.fileUploadService = fileUploadService;
+        this.contentLikeMapper = contentLikeMapper;
     }
 
     /**
@@ -30,8 +45,8 @@ public class ContentServiceImpl implements ContentService {
      * @return
      */
     @Override
-    public DefaultRes<List<Content>> findAll() {
-        final List<Content> contentList = contentMapper.findAll();
+    public DefaultRes<List<Content>> findAll(final Pagination pagination) {
+        final List<Content> contentList = contentMapper.findAll(pagination);
         return DefaultRes.res(StatusCode.OK, ResponseMessage.READ_ALL_CONTENTS, contentList);
     }
 
@@ -47,13 +62,12 @@ public class ContentServiceImpl implements ContentService {
         Content content = contentMapper.findByContentIdx(contentIdx);
         if (content == null) return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_CONTENT);
 
-        //토큰 조회
-        if (auth == content.getU_id()) {
-            content.setAuth(true);
+        //내글 조회
+        if (auth == content.getU_id()) content.setAuth(true);
 
-            //좋아요 여부 확인
-            content.setLike(true);
-        }
+        //좋아요 여부 확인
+        final ContentLike contentLike = contentLikeMapper.getLike(auth, content.getB_id());
+        if(contentLike != null) content.setLike(true);
 
         return DefaultRes.res(StatusCode.OK, ResponseMessage.READ_CONTENT, content);
     }
@@ -92,7 +106,7 @@ public class ContentServiceImpl implements ContentService {
         Content content = contentMapper.findByContentIdx(contentIdx);
         if (content == null) return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_CONTENT);
 
-        if(auth == content.getU_id()) {
+        if (auth == content.getU_id()) {
             content.likes();
             contentMapper.like(contentIdx, content);
             return DefaultRes.res(StatusCode.OK, ResponseMessage.LIKE_CONTENT, content);

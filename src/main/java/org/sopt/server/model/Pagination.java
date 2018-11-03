@@ -1,11 +1,16 @@
 package org.sopt.server.model;
 
-import lombok.Builder;
+import lombok.Data;
 
 /**
  * Created by ds on 2018-10-23.
  */
 
-@Builder
+@Data
 public class Pagination {
+
+    private int offset = 0;
+    private int limit = 10;
+    private String keyword = "";
+
 }

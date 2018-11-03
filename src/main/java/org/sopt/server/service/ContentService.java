@@ -2,6 +2,7 @@ package org.sopt.server.service;
 
 import org.sopt.server.dto.Content;
 import org.sopt.server.model.DefaultRes;
+import org.sopt.server.model.Pagination;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
  */
 
 public interface ContentService {
-    DefaultRes<List<Content>> findAll();
+    DefaultRes<List<Content>> findAll(final Pagination pagination);
 
     DefaultRes<Content> findByContentIdx(final int auth, final int contentIdx);
 

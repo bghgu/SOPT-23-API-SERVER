@@ -36,6 +36,7 @@ public class CommentController {
         try {
             return new ResponseEntity<>(commentService.findByContentIdx(contentIdx), HttpStatus.OK);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
