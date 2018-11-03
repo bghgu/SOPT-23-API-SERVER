@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartRequest;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 /**
@@ -26,6 +27,8 @@ import java.io.IOException;
 @RequestMapping("/users")
 public class UserController {
 
+    private static final String HEADER = "Authorization";
+
     private static final DefaultRes FAIL_DEFAULT_RES = new DefaultRes(StatusCode.INTERNAL_SERVER_ERROR, ResponseMessage.INTERNAL_SERVER_ERROR);
 
     private final UserService userService;
@@ -35,16 +38,18 @@ public class UserController {
     }
 
     /**
-     * 마이페이지 조회
-     *
+     * 마이 페이지 조회
+     * @param httpServletRequest
      * @param userIdx
      * @return
      */
     @GetMapping("/{userIdx}")
     public ResponseEntity getMyPage(
-            @RequestHeader("Authorization") final String jwt,
-            @PathVariable final int userIdx) {
+            final HttpServletRequest httpServletRequest,
+            @PathVariable final int userIdx
+    ) {
         try {
+            final String jwt = httpServletRequest.getHeader(HEADER);
             if (JwtUtils.checkAuth(jwt, userIdx).getData())
                 return new ResponseEntity<>(userService.findByUserIdx(JwtUtils.decode(jwt).get().getUser_idx(), userIdx), HttpStatus.OK);
             return new ResponseEntity<>(userService.findByUserIdx(0, userIdx), HttpStatus.OK);
@@ -59,8 +64,8 @@ public class UserController {
      * @param
      * @return
      */
-    @PostMapping(value = "")
-    public ResponseEntity signUp(SignUpReq signUpReq) throws IOException {
+    @PostMapping("")
+    public ResponseEntity signUp(final SignUpReq signUpReq) throws IOException {
         try {
             return new ResponseEntity<>(userService.save(signUpReq), HttpStatus.OK);
         } catch (Exception e) {
@@ -80,13 +85,16 @@ public class UserController {
     public ResponseEntity updateMyPage(
             @RequestHeader("Authorization") final String jwt,
             @PathVariable final int userIdx,
-            @RequestBody final SignUpReq signUpReq) {
+            final SignUpReq signUpReq,
+            @RequestPart final MultipartFile profile) throws IOException {
         try {
+            if(profile != null) signUpReq.setProfile(profile);
             final DefaultRes<Boolean> defaultRes = JwtUtils.checkAuth(jwt, userIdx);
             if (defaultRes.getData())
                 return new ResponseEntity<>(userService.update(userIdx, signUpReq), HttpStatus.OK);
             return new ResponseEntity<>(defaultRes, HttpStatus.OK);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

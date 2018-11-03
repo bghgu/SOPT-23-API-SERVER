@@ -1,6 +1,7 @@
 package org.sopt.server.dto;
 
 import lombok.Data;
+import org.sopt.server.model.SignUpReq;
 
 import java.io.Serializable;
 
@@ -20,6 +21,8 @@ public class User implements Serializable {
     private String u_email;
     private boolean auth;
 
-
-
+    public void update(final SignUpReq signUpReq) {
+        if(signUpReq.getName() != null) u_name = signUpReq.getName();
+        if(signUpReq.getPart() != null) u_part = signUpReq.getPart();
+    }
 }

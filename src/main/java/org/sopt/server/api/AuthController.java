@@ -47,18 +47,18 @@ public class AuthController {
         }
     }
 
-    /**
-     * 로그아웃
-     * @return
-     */
-    @Auth
-    @GetMapping("logout")
-    public ResponseEntity logout() {
-        try{
-            return new ResponseEntity(HttpStatus.OK);
-        }catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    /**
+//     * 로그아웃
+//     * @return
+//     */
+//    @Auth
+//    @GetMapping("logout")
+//    public ResponseEntity logout() {
+//        try{
+//            return new ResponseEntity(HttpStatus.OK);
+//        }catch (Exception e) {
+//            e.printStackTrace();
+//            return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 }

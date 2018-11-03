@@ -75,8 +75,6 @@ public class JwtUtils {
     public static DefaultRes<Boolean> checkAuth(final String jwt, final int userIdx) {
         final Optional<JwtUtils.Token> token = decode(jwt);
         if (token.isPresent()) {
-            log.info(userIdx + "");
-            log.info(token.get().getUser_idx() + "");
             if (userIdx == token.get().getUser_idx())
                 return DefaultRes.res(StatusCode.OK, ResponseMessage.AUTHORIZED, true);
             return DefaultRes.res(StatusCode.FORBIDDEN, ResponseMessage.FORBIDDEN, false);

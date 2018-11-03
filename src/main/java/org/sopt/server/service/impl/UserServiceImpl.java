@@ -12,8 +12,6 @@ import org.sopt.server.utils.StatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-
 /**
  * Created by ds on 2018-10-23.
  */
@@ -49,7 +47,6 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 회원 가입
-     * 파일업로드 추가 해야함
      * @param signUpReq 회원 가입 정보
      * @return DefaultRes
      */
@@ -61,7 +58,7 @@ public class UserServiceImpl implements UserService {
             final User user = userMapper.findByEmail(signUpReq.getEmail());
             if(user == null) {
                 try {
-                    signUpReq.setProfileUrl(fileUploadService.upload(signUpReq.getProfile()));
+                    if(signUpReq.getProfile() != null) signUpReq.setProfileUrl(fileUploadService.upload(signUpReq.getProfile()));
                     userMapper.save(signUpReq);
                     return DefaultRes.res(StatusCode.CREATED, ResponseMessage.CREATED_USER);
                 } catch (Exception e) {
@@ -82,20 +79,23 @@ public class UserServiceImpl implements UserService {
      */
     @Transactional
     @Override
-    public DefaultRes<User> update(final int userIdx, final SignUpReq signUpReq) {
+    public DefaultRes<User> update(final int userIdx, SignUpReq signUpReq) {
         //사용자 조회
         User temp = userMapper.findByUserIdx(userIdx);
         if (temp == null)
             return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_USER);
 
-        signUpReq.update(temp);
-
         try {
-            userMapper.update(userIdx, signUpReq);
+            temp.update(signUpReq);
+            if(signUpReq.getProfile() != null) temp.setU_profile(fileUploadService.upload(signUpReq.getProfile()));
+
+            userMapper.update(temp);
+
             temp = userMapper.findByUserIdx(userIdx);
             temp.setAuth(true);
             return DefaultRes.res(StatusCode.OK, ResponseMessage.UPDATE_USER, temp);
         } catch (Exception e) {
+            e.printStackTrace();
             return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
         }
     }

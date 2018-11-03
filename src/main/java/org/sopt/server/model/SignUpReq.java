@@ -53,10 +53,4 @@ public class SignUpReq implements Serializable {
         if(email == null) return false;
         return true;
     }
-
-    public void update(final User user) {
-        setName(this.name.equals("") ? user.getU_name() : this.name);
-        setPart(this.part.equals("") ? user.getU_part() : this.part);
-        //setProfileUrl(this.profile == null ? user.getU_profile() : null);
-    }
 }

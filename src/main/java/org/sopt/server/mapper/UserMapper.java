@@ -47,19 +47,13 @@ public interface UserMapper {
     @Options(useGeneratedKeys = true, keyProperty = "u_id")
     void save(final SignUpReq signUpReq);
 
+
     /**
      * 회원 정보 수정
-     * @param userIdx
-     * @param signUpReq
-     * @return
+     * @param user
      */
-    @Update("UPDATE user SET" +
-            "u_name = #{name}" +
-            "u_password = #{password}" +
-            "u_part = #{part}" +
-            "u_profile = #{profileUrl}" +
-            "WHERE u_id = #{id}")
-    void update(@Param("u_id") final int userIdx, final SignUpReq signUpReq);
+    @Update("UPDATE user SET u_name = #{u_name}, u_part = #{u_part}, u_profile = #{u_profile} WHERE u_id = #{u_id}")
+    void update(final User user);
 
     /**
      * 회원 탈퇴
