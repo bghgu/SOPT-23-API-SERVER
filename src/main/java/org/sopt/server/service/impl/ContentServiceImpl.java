@@ -6,6 +6,7 @@ import org.sopt.server.dto.ContentLike;
 import org.sopt.server.mapper.CommentMapper;
 import org.sopt.server.mapper.ContentLikeMapper;
 import org.sopt.server.mapper.ContentMapper;
+import org.sopt.server.model.ContentReq;
 import org.sopt.server.model.DefaultRes;
 import org.sopt.server.model.Pagination;
 import org.sopt.server.service.CommentService;
@@ -39,9 +40,9 @@ public class ContentServiceImpl implements ContentService {
     }
 
     /**
-     * 모든 글 조회
-     * 페이지 네이션 추가
+     * 모든 게시글 조회
      *
+     * @param pagination
      * @return
      */
     @Override
@@ -66,8 +67,8 @@ public class ContentServiceImpl implements ContentService {
         if (auth == content.getU_id()) content.setAuth(true);
 
         //좋아요 여부 확인
-        final ContentLike contentLike = contentLikeMapper.getLike(auth, content.getB_id());
-        if(contentLike != null) content.setLike(true);
+        final ContentLike contentLike = contentLikeMapper.findByUserIdxAndContentIdx(auth, content.getB_id());
+        if (contentLike != null) content.setLike(true);
 
         return DefaultRes.res(StatusCode.OK, ResponseMessage.READ_CONTENT, content);
     }
@@ -76,14 +77,16 @@ public class ContentServiceImpl implements ContentService {
      * 글 작성
      * 파일 업로드
      *
-     * @param content
+     * @param contentReq
      * @return DefaultRes
      */
     @Override
-    public DefaultRes save(final Content content) {
-        if (content.checkProperties()) {
+    public DefaultRes save(final ContentReq contentReq) {
+        if (contentReq.checkProperties()) {
             try {
-                contentMapper.save(content);
+                if (contentReq.getPhoto() != null)
+                    contentReq.setB_photo(fileUploadService.upload(contentReq.getPhoto()));
+                contentMapper.save(contentReq);
                 return DefaultRes.res(StatusCode.CREATED, ResponseMessage.CREATE_CONTENT);
             } catch (Exception e) {
                 return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
@@ -107,9 +110,21 @@ public class ContentServiceImpl implements ContentService {
         if (content == null) return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_CONTENT);
 
         if (auth == content.getU_id()) {
-            content.likes();
-            contentMapper.like(contentIdx, content);
-            return DefaultRes.res(StatusCode.OK, ResponseMessage.LIKE_CONTENT, content);
+
+            ContentLike contentLike = contentLikeMapper.findByUserIdxAndContentIdx(auth, contentIdx);
+            if (contentLike == null) {
+                content.likes();
+                contentMapper.like(contentIdx, content.getB_like());
+                contentLikeMapper.save(auth, contentIdx);
+                content = findByContentIdx(auth, contentIdx).getData();
+                return DefaultRes.res(StatusCode.OK, ResponseMessage.LIKE_CONTENT, content);
+            } else {
+                content.unLikes();
+                contentMapper.like(contentIdx, content.getB_like());
+                contentLikeMapper.deleteByUserIdxAndContentIdx(auth, contentIdx);
+                content = findByContentIdx(auth, contentIdx).getData();
+                return DefaultRes.res(StatusCode.OK, ResponseMessage.UNLIKE_COTENT, content);
+            }
         }
 
         return DefaultRes.res(StatusCode.UNAUTHORIZED, ResponseMessage.UNAUTHORIZED, false);
@@ -119,35 +134,34 @@ public class ContentServiceImpl implements ContentService {
      * 글 수정
      *
      * @param contentIdx
-     * @param content
+     * @param contentReq
      * @return DefaultRes
      */
     @Override
-    public DefaultRes update(final int contentIdx, final Content content) {
+    public DefaultRes update(final int contentIdx, final ContentReq contentReq) {
         //글 조회
         Content temp = contentMapper.findByContentIdx(contentIdx);
         if (temp == null)
             return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_CONTENT);
 
         //권환 확인
-        if (temp.getU_id() == content.getU_id()) {
-
-            //항목 확인
-            if (!content.checkProperties())
-                return DefaultRes.res(StatusCode.BAD_REQUEST, ResponseMessage.FAIL_UPDATE_CONTENT);
+        if (temp.getU_id() == contentReq.getU_id()) {
 
             //수정
             try {
-                contentMapper.updateByContentIdx(content, contentIdx);
-                temp = contentMapper.findByContentIdx(contentIdx);
+                if (contentReq.getPhoto() != null) temp.setB_photo(fileUploadService.upload(contentReq.getPhoto()));
+                temp.update(contentReq);
+                contentMapper.updateByContentIdx(temp);
+                temp = findByContentIdx(contentReq.getU_id(), contentIdx).getData();
                 return DefaultRes.res(StatusCode.OK, ResponseMessage.UPDATE_CONTENT, temp);
             } catch (Exception e) {
+                e.printStackTrace();
                 return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
             }
 
         }
 
-        return DefaultRes.res(StatusCode.UNAUTHORIZED, ResponseMessage.UNAUTHORIZED, false);
+        return DefaultRes.res(StatusCode.FORBIDDEN, ResponseMessage.FORBIDDEN, false);
     }
 
     /**
@@ -175,6 +189,6 @@ public class ContentServiceImpl implements ContentService {
             }
         }
 
-        return DefaultRes.res(StatusCode.UNAUTHORIZED, ResponseMessage.UNAUTHORIZED, false);
+        return DefaultRes.res(StatusCode.FORBIDDEN, ResponseMessage.FORBIDDEN, false);
     }
 }

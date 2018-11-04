@@ -1,6 +1,7 @@
 package org.sopt.server.service;
 
 import org.sopt.server.dto.Content;
+import org.sopt.server.model.ContentReq;
 import org.sopt.server.model.DefaultRes;
 import org.sopt.server.model.Pagination;
 
@@ -15,11 +16,11 @@ public interface ContentService {
 
     DefaultRes<Content> findByContentIdx(final int auth, final int contentIdx);
 
-    DefaultRes save(final Content content);
+    DefaultRes save(final ContentReq contentReq);
 
     DefaultRes likes(final int auth, final int contentIdx);
 
-    DefaultRes update(final int contentIdx, final Content content);
+    DefaultRes update(final int contentIdx, final ContentReq contentReq);
 
     DefaultRes deleteByContentIdx(final int auth, final int contentIdx);
 }

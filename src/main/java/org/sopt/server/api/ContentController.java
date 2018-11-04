@@ -2,6 +2,7 @@ package org.sopt.server.api;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.server.dto.Content;
+import org.sopt.server.model.ContentReq;
 import org.sopt.server.model.DefaultRes;
 import org.sopt.server.model.Pagination;
 import org.sopt.server.service.ContentService;
@@ -12,6 +13,7 @@ import org.sopt.server.utils.auth.JwtUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -53,24 +55,24 @@ public class ContentController {
             if(jwt != null) return new ResponseEntity<>(contentService.findByContentIdx(JwtUtils.decode(jwt).get().getUser_idx(), contentIdx), HttpStatus.OK);
             return new ResponseEntity<>(contentService.findByContentIdx(0, contentIdx), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
      * 글 작성
-     * @param content
+     * @param contentReq
      * @return
      */
     @Auth
     @PostMapping("")
     public ResponseEntity writeContents(
             @RequestHeader("Authorization") final String jwt,
-            @RequestBody Content content) {
+            final ContentReq contentReq) {
         try {
-            content.setU_id(JwtUtils.decode(jwt).get().getUser_idx());
-            return new ResponseEntity<>(contentService.save(content), HttpStatus.OK);
+            contentReq.setU_id(JwtUtils.decode(jwt).get().getUser_idx());
+            log.info(contentReq.toString());
+            return new ResponseEntity<>(contentService.save(contentReq), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -90,6 +92,7 @@ public class ContentController {
             final int temp = JwtUtils.decode(jwt).get().getUser_idx();
             return new ResponseEntity<>(contentService.likes(temp, contentIdx), HttpStatus.OK);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -104,11 +107,14 @@ public class ContentController {
     public ResponseEntity updateContents(
             @RequestHeader("Authorization") final String jwt,
             @PathVariable final int contentIdx,
-            @RequestBody Content content) {
+            final ContentReq contentReq,
+            @RequestPart(value = "photo", required = false) final MultipartFile photo) {
         try {
-            content.setU_id(JwtUtils.decode(jwt).get().getUser_idx());
-            return new ResponseEntity<>(contentService.update(contentIdx, content), HttpStatus.OK);
+            if(photo != null) contentReq.setPhoto(photo);
+            contentReq.setU_id(JwtUtils.decode(jwt).get().getUser_idx());
+            return new ResponseEntity<>(contentService.update(contentIdx, contentReq), HttpStatus.OK);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -124,8 +130,7 @@ public class ContentController {
             @RequestHeader("Authorization") final String jwt,
             @PathVariable final int contentIdx) {
         try {
-            final int temp = JwtUtils.decode(jwt).get().getUser_idx();
-            return new ResponseEntity<>(contentService.deleteByContentIdx(temp, contentIdx), HttpStatus.OK);
+            return new ResponseEntity<>(contentService.deleteByContentIdx(JwtUtils.decode(jwt).get().getUser_idx(), contentIdx), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }

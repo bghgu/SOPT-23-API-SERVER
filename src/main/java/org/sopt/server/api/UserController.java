@@ -86,7 +86,7 @@ public class UserController {
             @RequestHeader("Authorization") final String jwt,
             @PathVariable final int userIdx,
             final SignUpReq signUpReq,
-            @RequestPart final MultipartFile profile) throws IOException {
+            @RequestPart(value = "profile", required = false) final MultipartFile profile) throws IOException {
         try {
             if(profile != null) signUpReq.setProfile(profile);
             final DefaultRes<Boolean> defaultRes = JwtUtils.checkAuth(jwt, userIdx);

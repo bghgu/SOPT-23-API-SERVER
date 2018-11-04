@@ -65,6 +65,7 @@ Authorization: token
     "data": null
 }
 ```
+------
 ## 회원 가입
 
 | 메소드 | 경로   | 짧은 설명 |
@@ -74,7 +75,7 @@ Authorization: token
 ### 요청 헤더
 
 ```json
-Content-Type: application/json
+Content-Type: multipart/form-data
 ```
 
 ### 요청 바디
@@ -137,7 +138,7 @@ Content-Type: application/json
 ### 요청 헤더
 
 ```json
-Content-Type: application/json
+Content-Type: multipart/form-data
 Application: token
 ```
 
@@ -220,9 +221,7 @@ Application: token
     "data": null
 }
 ```
-
 ------
-
 ## 회원 탈퇴
 
 | 메소드 | 경로             | 짧은 설명 |

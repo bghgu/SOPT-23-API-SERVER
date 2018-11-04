@@ -10,8 +10,8 @@ import java.util.List;
  */
 
 public interface CommentService {
-    DefaultRes<List<Comment>> findByContentIdx(final int contentIdx);
-    DefaultRes<Comment> findByCommentIdx(final int commentIdx);
+    DefaultRes<List<Comment>> findByContentIdx(final int auth, final int contentIdx);
+    DefaultRes<Comment> findByCommentIdx(final int auth, final int commentIdx);
     DefaultRes save(final int contentIdx, final Comment comment);
     DefaultRes likes(final int commentIdx);
     DefaultRes<Comment> update(final int commentIdx, final Comment comment);

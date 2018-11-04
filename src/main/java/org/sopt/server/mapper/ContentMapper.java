@@ -2,6 +2,7 @@ package org.sopt.server.mapper;
 
 import org.apache.ibatis.annotations.*;
 import org.sopt.server.dto.Content;
+import org.sopt.server.model.ContentReq;
 import org.sopt.server.model.Pagination;
 import org.sopt.server.model.SignUpReq;
 
@@ -32,28 +33,27 @@ public interface ContentMapper {
 
     /**
      * 글 작성
-     * @param content
+     * @param contentReq
      */
-    @Insert("INSERT INTO board() VALUES()")
+    @Insert("INSERT INTO board(b_title, b_contents, u_id, b_photo) VALUES(#{title}, #{contents}, #{u_id}, #{b_photo})")
     @Options(useGeneratedKeys = true, keyProperty = "b_id")
-    void save(final Content content);
+    void save(final ContentReq contentReq);
 
     /**
      * 글 좋아요
      * @param contentIdx
-     * @param content
+     * @param b_like
      * @return
      */
     @Update("UPDATE board SET b_like = #{b_like} WHERE b_id = #{b_id}")
-    void like(@Param("b_id") final int contentIdx, final Content content);
+    void like(@Param("b_id") final int contentIdx, @Param("b_like") final int b_like);
 
     /**
      * 글 수정
      * @param content
-     * @param contentIdx
      */
-    @Update("UPDATE baord SET WHERE b_id = #{b_id}")
-    void updateByContentIdx(final Content content, @Param("b_id") final int contentIdx);
+    @Update("UPDATE board SET b_title = #{b_title}, b_contents = #{b_contents}, b_photo = #{b_photo}, b_date = #{b_date} WHERE b_id = #{b_id}")
+    void updateByContentIdx(final Content content);
 
     /**
      * 글 삭제

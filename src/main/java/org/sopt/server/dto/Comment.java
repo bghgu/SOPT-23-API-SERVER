@@ -20,6 +20,8 @@ public class Comment implements Serializable {
     private String c_contents;
     private Date c_date;
     private int c_like;
+    private boolean auth;
+    private boolean like;
 
     public void likes() {
         this.c_like++;
