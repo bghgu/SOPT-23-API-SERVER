@@ -42,6 +42,7 @@ public class ContentController {
         try {
             return new ResponseEntity<>(contentService.findAll(pagination), HttpStatus.OK);
         } catch (Exception e) {
+            log.info(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -55,6 +56,7 @@ public class ContentController {
             if(jwt != null) return new ResponseEntity<>(contentService.findByContentIdx(JwtUtils.decode(jwt).get().getUser_idx(), contentIdx), HttpStatus.OK);
             return new ResponseEntity<>(contentService.findByContentIdx(0, contentIdx), HttpStatus.OK);
         } catch (Exception e) {
+            log.info(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -74,6 +76,7 @@ public class ContentController {
             log.info(contentReq.toString());
             return new ResponseEntity<>(contentService.save(contentReq), HttpStatus.OK);
         } catch (Exception e) {
+            log.info(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -92,7 +95,7 @@ public class ContentController {
             final int temp = JwtUtils.decode(jwt).get().getUser_idx();
             return new ResponseEntity<>(contentService.likes(temp, contentIdx), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.info(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -114,7 +117,7 @@ public class ContentController {
             contentReq.setU_id(JwtUtils.decode(jwt).get().getUser_idx());
             return new ResponseEntity<>(contentService.update(contentIdx, contentReq), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.info(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -132,6 +135,7 @@ public class ContentController {
         try {
             return new ResponseEntity<>(contentService.deleteByContentIdx(JwtUtils.decode(jwt).get().getUser_idx(), contentIdx), HttpStatus.OK);
         } catch (Exception e) {
+            log.info(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

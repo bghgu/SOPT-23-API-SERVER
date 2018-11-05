@@ -43,6 +43,7 @@ public class AuthController {
         try{
             return new ResponseEntity<>(authService.login(loginReq), HttpStatus.OK);
         }catch (Exception e) {
+            log.info(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

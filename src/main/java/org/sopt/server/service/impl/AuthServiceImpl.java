@@ -32,9 +32,4 @@ public class AuthServiceImpl implements AuthService {
         }
         return DefaultRes.res(StatusCode.BAD_REQUEST, ResponseMessage.LOGIN_FAIL);
     }
-
-    @Override
-    public DefaultRes logout() {
-        return null;
-    }
 }

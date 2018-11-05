@@ -54,6 +54,7 @@ public class UserController {
                 return new ResponseEntity<>(userService.findByUserIdx(JwtUtils.decode(jwt).get().getUser_idx(), userIdx), HttpStatus.OK);
             return new ResponseEntity<>(userService.findByUserIdx(0, userIdx), HttpStatus.OK);
         } catch (Exception e) {
+            log.info(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -69,7 +70,7 @@ public class UserController {
         try {
             return new ResponseEntity<>(userService.save(signUpReq), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.info(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -94,7 +95,7 @@ public class UserController {
                 return new ResponseEntity<>(userService.update(userIdx, signUpReq), HttpStatus.OK);
             return new ResponseEntity<>(defaultRes, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.info(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -116,6 +117,7 @@ public class UserController {
                 return new ResponseEntity<>(userService.deleteByUserIdx(userIdx), HttpStatus.OK);
             return new ResponseEntity<>(defaultRes, HttpStatus.OK);
         } catch (Exception e) {
+            log.info(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

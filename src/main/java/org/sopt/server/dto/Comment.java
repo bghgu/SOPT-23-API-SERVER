@@ -26,4 +26,8 @@ public class Comment implements Serializable {
     public void likes() {
         this.c_like++;
     }
+
+    public void unLikes() {
+        if(this.c_like > 0) c_like--;
+    }
 }

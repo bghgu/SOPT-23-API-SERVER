@@ -15,6 +15,7 @@ import org.sopt.server.service.FileUploadService;
 import org.sopt.server.utils.ResponseMessage;
 import org.sopt.server.utils.StatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.List;
 
@@ -89,6 +90,8 @@ public class ContentServiceImpl implements ContentService {
                 contentMapper.save(contentReq);
                 return DefaultRes.res(StatusCode.CREATED, ResponseMessage.CREATE_CONTENT);
             } catch (Exception e) {
+                log.info(e.getMessage());
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
             }
         }
@@ -155,7 +158,8 @@ public class ContentServiceImpl implements ContentService {
                 temp = findByContentIdx(contentReq.getU_id(), contentIdx).getData();
                 return DefaultRes.res(StatusCode.OK, ResponseMessage.UPDATE_CONTENT, temp);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.info(e.getMessage());
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
             }
 
@@ -185,6 +189,8 @@ public class ContentServiceImpl implements ContentService {
                 contentMapper.deleteByContentIdx(contentIdx);
                 return DefaultRes.res(StatusCode.NO_CONTENT, ResponseMessage.DELETE_CONTENT);
             } catch (Exception e) {
+                log.info(e.getMessage());
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
             }
         }

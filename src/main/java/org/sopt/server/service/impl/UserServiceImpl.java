@@ -11,6 +11,7 @@ import org.sopt.server.utils.ResponseMessage;
 import org.sopt.server.utils.StatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 /**
  * Created by ds on 2018-10-23.
@@ -62,6 +63,8 @@ public class UserServiceImpl implements UserService {
                     userMapper.save(signUpReq);
                     return DefaultRes.res(StatusCode.CREATED, ResponseMessage.CREATED_USER);
                 } catch (Exception e) {
+                    log.info(e.getMessage());
+                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
                 }
             }else return DefaultRes.res(StatusCode.BAD_REQUEST, ResponseMessage.ALREADY_USER);
@@ -95,7 +98,8 @@ public class UserServiceImpl implements UserService {
             temp.setAuth(true);
             return DefaultRes.res(StatusCode.OK, ResponseMessage.UPDATE_USER, temp);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.info(e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
         }
     }
@@ -116,6 +120,8 @@ public class UserServiceImpl implements UserService {
                 userMapper.deleteByUserIdx(userIdx);
                 return DefaultRes.res(StatusCode.NO_CONTENT, ResponseMessage.DELETE_USER);
             } catch (Exception e) {
+                log.info(e.getMessage());
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
             }
         }

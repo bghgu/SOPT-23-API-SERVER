@@ -18,5 +18,4 @@ public interface ContentLikeMapper {
 
     @Delete("DELETE FROM board_like WHERE u_id = #{u_id} AND b_id = #{b_id}")
     void deleteByUserIdxAndContentIdx(@Param("u_id") final int userIdx, @Param("b_id") final int contentIdx);
-
 }

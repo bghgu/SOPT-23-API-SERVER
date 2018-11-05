@@ -10,5 +10,4 @@ import org.sopt.server.utils.auth.JwtUtils;
 
 public interface AuthService {
     DefaultRes<JwtUtils.TokenRes> login(final LoginReq loginReq);
-    DefaultRes logout();
 }

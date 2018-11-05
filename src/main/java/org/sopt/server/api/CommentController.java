@@ -1,5 +1,6 @@
 package org.sopt.server.api;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sopt.server.dto.Comment;
 import org.sopt.server.model.DefaultRes;
 import org.sopt.server.service.CommentService;
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
  * Created by ds on 2018-10-23.
  */
 
+@Slf4j
 @RestController
 public class CommentController {
 
@@ -45,7 +47,7 @@ public class CommentController {
             if(jwt != null) return new ResponseEntity<>(commentService.findByContentIdx(JwtUtils.decode(jwt).get().getUser_idx(), contentIdx), HttpStatus.OK);
             return new ResponseEntity<>(commentService.findByContentIdx(0, contentIdx), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.info(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -57,10 +59,15 @@ public class CommentController {
      * @return
      */
     @GetMapping("/comments/{commentIdx}")
-    public ResponseEntity getComments(@PathVariable final int commentIdx) {
+    public ResponseEntity getComments(
+            final HttpServletRequest httpServletRequest,
+            @PathVariable final int commentIdx) {
         try {
-            return new ResponseEntity<>(commentService.findByCommentIdx(commentIdx), HttpStatus.OK);
+            final String jwt = httpServletRequest.getHeader(HEADER);
+            if(jwt != null) return new ResponseEntity<>(commentService.findByCommentIdx(JwtUtils.decode(jwt).get().getUser_idx(), commentIdx), HttpStatus.OK);
+            return new ResponseEntity<>(commentService.findByCommentIdx(0, commentIdx), HttpStatus.OK);
         } catch (Exception e) {
+            log.info(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -81,6 +88,7 @@ public class CommentController {
             comment.setU_id(JwtUtils.decode(jwt).get().getUser_idx());
             return new ResponseEntity<>(commentService.save(contentIdx, comment), HttpStatus.OK);
         } catch (Exception e) {
+            log.info(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -99,6 +107,7 @@ public class CommentController {
         try {
             return new ResponseEntity<>(commentService.likes(commentIdx), HttpStatus.OK);
         } catch (Exception e) {
+            log.info(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -118,6 +127,7 @@ public class CommentController {
         try {
             return new ResponseEntity<>(commentService.update(commentIdx, comment), HttpStatus.OK);
         } catch (Exception e) {
+            log.info(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -136,7 +146,7 @@ public class CommentController {
         try {
             return new ResponseEntity<>(commentService.deleteByCommentIdx(commentIdx), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.info(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
