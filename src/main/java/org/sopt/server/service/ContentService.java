@@ -14,13 +14,17 @@ import java.util.List;
 public interface ContentService {
     DefaultRes<List<Content>> findAll(final Pagination pagination);
 
-    DefaultRes<Content> findByContentIdx(final int auth, final int contentIdx);
+    DefaultRes<Content> findByContentIdx(final int contentIdx);
 
     DefaultRes save(final ContentReq contentReq);
 
-    DefaultRes likes(final int auth, final int contentIdx);
+    DefaultRes likes(final int userIdx, final int contentIdx);
 
     DefaultRes update(final int contentIdx, final ContentReq contentReq);
 
-    DefaultRes deleteByContentIdx(final int auth, final int contentIdx);
+    DefaultRes deleteByContentIdx(final int contentIdx);
+
+    boolean checkAuth(final int userIdx, final int contentIdx);
+
+    boolean checkLike(final int userIdx, final int contentIdx);
 }

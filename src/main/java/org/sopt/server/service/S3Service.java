@@ -5,8 +5,10 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 
@@ -14,6 +16,7 @@ import java.io.File;
  * Created by ds on 2018-10-24.
  */
 
+@Slf4j
 @Component
 public class S3Service {
 
@@ -27,18 +30,19 @@ public class S3Service {
     }
 
     //S3에 파일을 업로드한다.
-    public void uploadOnS3(String fileName, File file) {
+    @Transactional
+    public void uploadOnS3(final String fileName, final File file) {
 
-        TransferManager transferManager = new TransferManager(this.amazonS3Client);
-        PutObjectRequest request = new PutObjectRequest(bucket, fileName, file);
-        Upload upload = transferManager.upload(request);
+        final TransferManager transferManager = new TransferManager(this.amazonS3Client);
+        final PutObjectRequest request = new PutObjectRequest(bucket, fileName, file);
+        final Upload upload = transferManager.upload(request);
 
         try {
             upload.waitForCompletion();
         } catch (AmazonClientException amazonClientException) {
-            amazonClientException.printStackTrace();
+            log.error(amazonClientException.getMessage());
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         }
     }
 }

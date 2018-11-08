@@ -44,10 +44,10 @@ public class CommentController {
             @PathVariable final int contentIdx) {
         try {
             final String jwt = httpServletRequest.getHeader(HEADER);
-            if(jwt != null) return new ResponseEntity<>(commentService.findByContentIdx(JwtUtils.decode(jwt).get().getUser_idx(), contentIdx), HttpStatus.OK);
+            if(jwt != null) return new ResponseEntity<>(commentService.findByContentIdx(JwtUtils.decode(jwt).getUser_idx(), contentIdx), HttpStatus.OK);
             return new ResponseEntity<>(commentService.findByContentIdx(0, contentIdx), HttpStatus.OK);
         } catch (Exception e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -64,10 +64,10 @@ public class CommentController {
             @PathVariable final int commentIdx) {
         try {
             final String jwt = httpServletRequest.getHeader(HEADER);
-            if(jwt != null) return new ResponseEntity<>(commentService.findByCommentIdx(JwtUtils.decode(jwt).get().getUser_idx(), commentIdx), HttpStatus.OK);
+            if(jwt != null) return new ResponseEntity<>(commentService.findByCommentIdx(JwtUtils.decode(jwt).getUser_idx(), commentIdx), HttpStatus.OK);
             return new ResponseEntity<>(commentService.findByCommentIdx(0, commentIdx), HttpStatus.OK);
         } catch (Exception e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -85,10 +85,10 @@ public class CommentController {
             @PathVariable final int contentIdx,
             @RequestBody Comment comment) {
         try {
-            comment.setU_id(JwtUtils.decode(jwt).get().getUser_idx());
+            comment.setU_id(JwtUtils.decode(jwt).getUser_idx());
             return new ResponseEntity<>(commentService.save(contentIdx, comment), HttpStatus.OK);
         } catch (Exception e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -105,9 +105,9 @@ public class CommentController {
             @RequestHeader("Authorization") final String jwt,
             @PathVariable final int commentIdx) {
         try {
-            return new ResponseEntity<>(commentService.likes(commentIdx), HttpStatus.OK);
+            return new ResponseEntity<>(commentService.likes(0, commentIdx), HttpStatus.OK);
         } catch (Exception e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -127,7 +127,7 @@ public class CommentController {
         try {
             return new ResponseEntity<>(commentService.update(commentIdx, comment), HttpStatus.OK);
         } catch (Exception e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -144,9 +144,9 @@ public class CommentController {
             @RequestHeader("Authorization") final String jwt,
             @PathVariable final int commentIdx) {
         try {
-            return new ResponseEntity<>(commentService.deleteByCommentIdx(commentIdx), HttpStatus.OK);
+            return new ResponseEntity<>(commentService.deleteByCommentIdx(0, commentIdx), HttpStatus.OK);
         } catch (Exception e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

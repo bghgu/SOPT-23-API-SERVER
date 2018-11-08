@@ -15,6 +15,7 @@ import org.sopt.server.service.FileUploadService;
 import org.sopt.server.utils.ResponseMessage;
 import org.sopt.server.utils.StatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.List;
@@ -31,10 +32,7 @@ public class ContentServiceImpl implements ContentService {
     private final ContentLikeMapper contentLikeMapper;
     private final FileUploadService fileUploadService;
 
-    public ContentServiceImpl(
-            final ContentMapper contentMapper,
-            final FileUploadService fileUploadService,
-            final ContentLikeMapper contentLikeMapper) {
+    public ContentServiceImpl(final ContentMapper contentMapper, final FileUploadService fileUploadService, final ContentLikeMapper contentLikeMapper) {
         this.contentMapper = contentMapper;
         this.fileUploadService = fileUploadService;
         this.contentLikeMapper = contentLikeMapper;
@@ -43,8 +41,8 @@ public class ContentServiceImpl implements ContentService {
     /**
      * 모든 게시글 조회
      *
-     * @param pagination
-     * @return
+     * @param pagination 페이지네이션
+     * @return DefaultRes
      */
     @Override
     public DefaultRes<List<Content>> findAll(final Pagination pagination) {
@@ -55,32 +53,24 @@ public class ContentServiceImpl implements ContentService {
     /**
      * 글 상세 조회
      *
-     * @param contentIdx
+     * @param contentIdx 글 고유 번호
      * @return DefaultRes
      */
     @Override
-    public DefaultRes<Content> findByContentIdx(final int auth, final int contentIdx) {
+    public DefaultRes<Content> findByContentIdx(final int contentIdx) {
         //글 조회
         Content content = contentMapper.findByContentIdx(contentIdx);
         if (content == null) return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_CONTENT);
-
-        //내글 조회
-        if (auth == content.getU_id()) content.setAuth(true);
-
-        //좋아요 여부 확인
-        final ContentLike contentLike = contentLikeMapper.findByUserIdxAndContentIdx(auth, content.getB_id());
-        if (contentLike != null) content.setLike(true);
-
         return DefaultRes.res(StatusCode.OK, ResponseMessage.READ_CONTENT, content);
     }
 
     /**
      * 글 작성
-     * 파일 업로드
      *
-     * @param contentReq
+     * @param contentReq 글 내용
      * @return DefaultRes
      */
+    @Transactional
     @Override
     public DefaultRes save(final ContentReq contentReq) {
         if (contentReq.checkProperties()) {
@@ -100,72 +90,73 @@ public class ContentServiceImpl implements ContentService {
 
     /**
      * 글 좋아요
-     * 좋아요 체크 추가
-     * 안좋아요
      *
-     * @param contentIdx
+     * @param userIdx    사용자 고유 번호
+     * @param contentIdx 글 고유 번호
      * @return DefaultRes
      */
+    @Transactional
     @Override
-    public DefaultRes likes(final int auth, final int contentIdx) {
+    public DefaultRes likes(final int userIdx, final int contentIdx) {
         //글 조회
-        Content content = contentMapper.findByContentIdx(contentIdx);
-        if (content == null) return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_CONTENT);
+        Content content = findByContentIdx(contentIdx).getData();
+        if (content == null)
+            return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_CONTENT);
 
-        if (auth == content.getU_id()) {
+        ContentLike contentLike = contentLikeMapper.findByUserIdxAndContentIdx(userIdx, contentIdx);
 
-            ContentLike contentLike = contentLikeMapper.findByUserIdxAndContentIdx(auth, contentIdx);
+        try {
             if (contentLike == null) {
                 content.likes();
                 contentMapper.like(contentIdx, content.getB_like());
-                contentLikeMapper.save(auth, contentIdx);
-                content = findByContentIdx(auth, contentIdx).getData();
-                return DefaultRes.res(StatusCode.OK, ResponseMessage.LIKE_CONTENT, content);
+                contentLikeMapper.save(userIdx, contentIdx);
             } else {
                 content.unLikes();
                 contentMapper.like(contentIdx, content.getB_like());
-                contentLikeMapper.deleteByUserIdxAndContentIdx(auth, contentIdx);
-                content = findByContentIdx(auth, contentIdx).getData();
-                return DefaultRes.res(StatusCode.OK, ResponseMessage.UNLIKE_COTENT, content);
+                contentLikeMapper.deleteByUserIdxAndContentIdx(userIdx, contentIdx);
             }
-        }
 
-        return DefaultRes.res(StatusCode.UNAUTHORIZED, ResponseMessage.UNAUTHORIZED, false);
+            content = findByContentIdx(contentIdx).getData();
+            content.setAuth(checkAuth(userIdx, contentIdx));
+
+            return DefaultRes.res(StatusCode.OK, ResponseMessage.LIKE_CONTENT, content);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
+        }
     }
 
     /**
      * 글 수정
      *
-     * @param contentIdx
-     * @param contentReq
+     * @param contentIdx 글 고유 번호
+     * @param contentReq 수정할 글
      * @return DefaultRes
      */
+    @Transactional
     @Override
     public DefaultRes update(final int contentIdx, final ContentReq contentReq) {
         //글 조회
-        Content temp = contentMapper.findByContentIdx(contentIdx);
-        if (temp == null)
+        Content content = findByContentIdx(contentIdx).getData();
+        if (content == null)
             return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_CONTENT);
 
-        //권환 확인
-        if (temp.getU_id() == contentReq.getU_id()) {
+        //수정
+        try {
+            if (contentReq.getPhoto() != null) content.setB_photo(fileUploadService.upload(contentReq.getPhoto()));
+            content.update(contentReq);
+            contentMapper.updateByContentIdx(content);
 
-            //수정
-            try {
-                if (contentReq.getPhoto() != null) temp.setB_photo(fileUploadService.upload(contentReq.getPhoto()));
-                temp.update(contentReq);
-                contentMapper.updateByContentIdx(temp);
-                temp = findByContentIdx(contentReq.getU_id(), contentIdx).getData();
-                return DefaultRes.res(StatusCode.OK, ResponseMessage.UPDATE_CONTENT, temp);
-            } catch (Exception e) {
-                log.info(e.getMessage());
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
-            }
+            content = findByContentIdx(contentIdx).getData();
+            content.setAuth(checkLike(contentReq.getU_id(), contentIdx));
 
+            return DefaultRes.res(StatusCode.OK, ResponseMessage.UPDATE_CONTENT, content);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
         }
-
-        return DefaultRes.res(StatusCode.FORBIDDEN, ResponseMessage.FORBIDDEN, false);
     }
 
     /**
@@ -174,27 +165,46 @@ public class ContentServiceImpl implements ContentService {
      * @param contentIdx 글 고유 번호
      * @return DefaultRes
      */
+    @Transactional
     @Override
-    public DefaultRes deleteByContentIdx(final int auth, final int contentIdx) {
+    public DefaultRes deleteByContentIdx(final int contentIdx) {
         //글 조회
-        final Content content = contentMapper.findByContentIdx(contentIdx);
+        final Content content = findByContentIdx(contentIdx).getData();
         if (content == null)
             return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_CONTENT);
 
-        //내 글인지 확인
-        if (auth == content.getU_id()) {
-
-            //삭제
-            try {
-                contentMapper.deleteByContentIdx(contentIdx);
-                return DefaultRes.res(StatusCode.NO_CONTENT, ResponseMessage.DELETE_CONTENT);
-            } catch (Exception e) {
-                log.info(e.getMessage());
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
-            }
+        //삭제
+        try {
+            contentMapper.deleteByContentIdx(contentIdx);
+            return DefaultRes.res(StatusCode.NO_CONTENT, ResponseMessage.DELETE_CONTENT);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
         }
+    }
 
-        return DefaultRes.res(StatusCode.FORBIDDEN, ResponseMessage.FORBIDDEN, false);
+    /**
+     * 글 권환 확인
+     *
+     * @param userIdx    사용자 고유 번호
+     * @param contentIdx 글 고유 번호
+     * @return boolean
+     */
+    @Override
+    public boolean checkAuth(final int userIdx, final int contentIdx) {
+        return userIdx == findByContentIdx(contentIdx).getData().getU_id();
+    }
+
+    /**
+     * 좋아요 여부 확인
+     *
+     * @param userIdx    사용자 고유 번호
+     * @param contentIdx 글 고유 번호
+     * @return boolean
+     */
+    @Override
+    public boolean checkLike(final int userIdx, final int contentIdx) {
+        return contentLikeMapper.findByUserIdxAndContentIdx(userIdx, contentIdx) != null;
     }
 }

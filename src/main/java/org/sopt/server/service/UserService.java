@@ -9,7 +9,7 @@ import org.sopt.server.model.SignUpReq;
  */
 
 public interface UserService {
-    DefaultRes<User> findByUserIdx(final int auth, final int userIdx);
+    DefaultRes<User> findByUserIdx(final int userIdx);
     DefaultRes save(final SignUpReq signUpReq);
     DefaultRes<User> update(final int userIdx, final SignUpReq signUpReq);
     DefaultRes deleteByUserIdx(final int userIdx);

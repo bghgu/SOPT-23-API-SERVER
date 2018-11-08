@@ -1,9 +1,11 @@
 package org.sopt.server.utils.auth;
 
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.sopt.server.dto.User;
 import org.sopt.server.model.DefaultRes;
 import org.sopt.server.service.UserService;
@@ -45,6 +47,12 @@ public class AuthAspect {
         this.userService = userService;
     }
 
+    /**
+     * 토큰 유효성 검사
+     * @param pjp
+     * @return
+     * @throws Throwable
+     */
     @Around("@annotation(org.sopt.server.utils.auth.Auth)")
     public Object around(final ProceedingJoinPoint pjp) throws Throwable {
         final String jwt = httpServletRequest.getHeader(AUTHORIZATION);
@@ -65,7 +73,6 @@ public class AuthAspect {
 
             //유효 사용자 검사
             if (user == null) {
-                log.info("없는 유저");
                 return RES_RESPONSE_ENTITY;
             }
 

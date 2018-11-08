@@ -14,7 +14,6 @@ public class ResponseMessage {
     public static final String CREATED_USER = "회원 가입 성공";
     public static final String FAIL_CREATE_USER = "회원 가입 실패";
     public static final String UPDATE_USER = "회원 정보 수정 성공";
-    public static final String FAIL_UPDATE_USER = "회원 정보 수정 실패";
     public static final String DELETE_USER = "회원 탈퇴 성공";
 
     public static final String READ_ALL_CONTENTS = "모든 글 조회 성공";
@@ -23,13 +22,8 @@ public class ResponseMessage {
     public static final String CREATE_CONTENT = "글 작성 성공";
     public static final String FAIL_CREATE_CONTENT = "글 작성 실패";
     public static final String UPDATE_CONTENT = "글 수정 성공";
-    public static final String FAIL_UPDATE_CONTENT = "글 수정 실패";
     public static final String DELETE_CONTENT = "글 삭제 성공";
-    public static final String FAIL_DELETE_CONTENT = "글 삭제 실패";
-    public static final String LIKE_CONTENT = "글 좋아요";
-    public static final String UNLIKE_COTENT = "글 좋아요 해제";
-    public static final String FAIL_LIKE_CONTENT = "글 좋아요 실패";
-    public static final String FAIL_UNLIKE_COTENT = "글 좋아요 해제 실패";
+    public static final String LIKE_CONTENT = "글 좋아요/해제 성공";
 
     public static final String READ_ALL_COMMENTS = "모든 댓글 조회 성공";
     public static final String READ_COMMENT = "댓글 조회 성공";

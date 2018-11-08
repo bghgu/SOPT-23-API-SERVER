@@ -37,17 +37,16 @@ public class UserServiceImpl implements UserService {
      * @return DefaultRes
      */
     @Override
-    public DefaultRes findByUserIdx(final int auth, final int userIdx) {
+    public DefaultRes<User> findByUserIdx(final int userIdx) {
         //사용자 조회
         User user = userMapper.findByUserIdx(userIdx);
-        if(userIdx == auth) user.setAuth(true);
-        if (user != null)
-            return DefaultRes.res(StatusCode.OK, ResponseMessage.READ_USER, user);
+        if (user != null) return DefaultRes.res(StatusCode.OK, ResponseMessage.READ_USER, user);
         return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_USER);
     }
 
     /**
      * 회원 가입
+     *
      * @param signUpReq 회원 가입 정보
      * @return DefaultRes
      */
@@ -57,17 +56,18 @@ public class UserServiceImpl implements UserService {
         //모든 항목이 있는지 검사
         if (signUpReq.checkProperties()) {
             final User user = userMapper.findByEmail(signUpReq.getEmail());
-            if(user == null) {
+            if (user == null) {
                 try {
-                    if(signUpReq.getProfile() != null) signUpReq.setProfileUrl(fileUploadService.upload(signUpReq.getProfile()));
+                    if (signUpReq.getProfile() != null)
+                        signUpReq.setProfileUrl(fileUploadService.upload(signUpReq.getProfile()));
                     userMapper.save(signUpReq);
                     return DefaultRes.res(StatusCode.CREATED, ResponseMessage.CREATED_USER);
                 } catch (Exception e) {
-                    log.info(e.getMessage());
+                    log.error(e.getMessage());
                     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
                 }
-            }else return DefaultRes.res(StatusCode.BAD_REQUEST, ResponseMessage.ALREADY_USER);
+            } else return DefaultRes.res(StatusCode.BAD_REQUEST, ResponseMessage.ALREADY_USER);
         }
         return DefaultRes.res(StatusCode.BAD_REQUEST, ResponseMessage.FAIL_CREATE_USER);
     }
@@ -75,8 +75,8 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 회원 정보 수정
-     * 파일업로드 추가 해야함
-     * @param userIdx 사용자 고유 번호
+     *
+     * @param userIdx   사용자 고유 번호
      * @param signUpReq 수정할 데이터
      * @return DefaultRes
      */
@@ -84,21 +84,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public DefaultRes<User> update(final int userIdx, SignUpReq signUpReq) {
         //사용자 조회
-        User temp = userMapper.findByUserIdx(userIdx);
+        User temp = findByUserIdx(userIdx).getData();
         if (temp == null)
             return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_USER);
 
         try {
             temp.update(signUpReq);
-            if(signUpReq.getProfile() != null) temp.setU_profile(fileUploadService.upload(signUpReq.getProfile()));
+            if (signUpReq.getProfile() != null) temp.setU_profile(fileUploadService.upload(signUpReq.getProfile()));
 
             userMapper.update(temp);
 
-            temp = userMapper.findByUserIdx(userIdx);
+            temp = findByUserIdx(userIdx).getData();
             temp.setAuth(true);
             return DefaultRes.res(StatusCode.OK, ResponseMessage.UPDATE_USER, temp);
         } catch (Exception e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
         }
@@ -120,7 +120,7 @@ public class UserServiceImpl implements UserService {
                 userMapper.deleteByUserIdx(userIdx);
                 return DefaultRes.res(StatusCode.NO_CONTENT, ResponseMessage.DELETE_USER);
             } catch (Exception e) {
-                log.info(e.getMessage());
+                log.error(e.getMessage());
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
             }

@@ -88,7 +88,7 @@ public class CommentServiceImpl implements CommentService {
             commentMapper.save(comment);
             return DefaultRes.res(StatusCode.CREATED, ResponseMessage.CREATE_COMMENT);
         } catch (Exception e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
         }
@@ -104,8 +104,6 @@ public class CommentServiceImpl implements CommentService {
     public DefaultRes likes(final int auth, final int commentIdx) {
         Comment comment = commentMapper.findByCommentIdx(commentIdx);
         if(comment == null) return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_CONTENT);
-
-
 
         if(auth == comment.getU_id()) {
 
@@ -126,7 +124,7 @@ public class CommentServiceImpl implements CommentService {
                     return DefaultRes.res(StatusCode.OK, ResponseMessage.UNLIKE_COTENT, comment);
                 }
             }catch (Exception e) {
-                log.info(e.getMessage());
+                log.error(e.getMessage());
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
             }
@@ -153,7 +151,7 @@ public class CommentServiceImpl implements CommentService {
                 temp = commentMapper.findByCommentIdx(commentIdx);
                 return DefaultRes.res(StatusCode.OK, "", temp);
             } catch (Exception e) {
-                log.info(e.getMessage());
+                log.error(e.getMessage());
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
             }
@@ -177,7 +175,7 @@ public class CommentServiceImpl implements CommentService {
                 commentMapper.deleteByConmmentIdx(commentIdx);
                 return DefaultRes.res(StatusCode.NO_CONTENT, "");
             } catch (Exception e) {
-                log.info(e.getMessage());
+                log.error(e.getMessage());
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
             }
