@@ -23,7 +23,7 @@ public class Content implements Serializable {
     private Date b_date;
     private int u_id;
     private int b_like;
-    private MultipartFile photo;
+    //private MultipartFile photo;
     private String b_photo;
     private boolean auth;
     private boolean like;
