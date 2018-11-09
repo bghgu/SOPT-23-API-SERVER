@@ -110,7 +110,7 @@ public class ContentController {
             if (contentService.checkAuth(userIdx, contentIdx))
                 return new ResponseEntity<>(contentService.likes(userIdx, contentIdx), HttpStatus.OK);
             else
-                return new ResponseEntity<>(DefaultRes.res(StatusCode.FORBIDDEN, ResponseMessage.FORBIDDEN, false), HttpStatus.OK);
+                return new ResponseEntity<>(UNAUTHORIZED_RES, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -140,7 +140,7 @@ public class ContentController {
                 contentReq.setU_id(userIdx);
                 return new ResponseEntity<>(contentService.update(contentIdx, contentReq), HttpStatus.OK);
             } else
-                return new ResponseEntity<>(DefaultRes.res(StatusCode.FORBIDDEN, ResponseMessage.FORBIDDEN, false), HttpStatus.OK);
+                return new ResponseEntity<>(UNAUTHORIZED_RES, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -163,7 +163,7 @@ public class ContentController {
             if (contentService.checkAuth(userIdx, contentIdx))
                 return new ResponseEntity<>(contentService.deleteByContentIdx(contentIdx), HttpStatus.OK);
             else
-                return new ResponseEntity<>(DefaultRes.res(StatusCode.FORBIDDEN, ResponseMessage.FORBIDDEN, false), HttpStatus.OK);
+                return new ResponseEntity<>(UNAUTHORIZED_RES, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());
             return new ResponseEntity<>(FAIL_DEFAULT_RES, HttpStatus.INTERNAL_SERVER_ERROR);

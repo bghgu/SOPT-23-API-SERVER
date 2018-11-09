@@ -13,6 +13,7 @@ import org.sopt.server.service.ContentService;
 import org.sopt.server.utils.ResponseMessage;
 import org.sopt.server.utils.StatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.List;
@@ -29,10 +30,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentLikeMapper commentLikeMapper;
     private final ContentService contentService;
 
-    public CommentServiceImpl(
-            final CommentMapper commentMapper,
-            final CommentLikeMapper commentLikeMapper,
-            final ContentService contentService) {
+    public CommentServiceImpl(final CommentMapper commentMapper, final CommentLikeMapper commentLikeMapper, final ContentService contentService) {
         this.commentMapper = commentMapper;
         this.commentLikeMapper = commentLikeMapper;
         this.contentService = contentService;
@@ -46,14 +44,9 @@ public class CommentServiceImpl implements CommentService {
      * @return 댓글 리스트
      */
     @Override
-    public DefaultRes<List<Comment>> findByContentIdx(final int auth, final int contentIdx) {
+    public DefaultRes<List<Comment>> findByContentIdx(final int contentIdx) {
         List<Comment> commentList = commentMapper.findAllByContentIdx(contentIdx);
         if (commentList.isEmpty()) return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_COMMENT);
-        if (auth != 0) {
-            for (int i = 0; i < commentList.size(); i++) {
-                if (commentList.get(i).getU_id() == auth) commentList.get(i).setAuth(true);
-            }
-        }
         return DefaultRes.res(StatusCode.OK, ResponseMessage.READ_ALL_COMMENTS, commentList);
     }
 
@@ -64,10 +57,10 @@ public class CommentServiceImpl implements CommentService {
      * @return 댓글
      */
     @Override
-    public DefaultRes<Comment> findByCommentIdx(final int auth, final int commentIdx) {
+    public DefaultRes<Comment> findByCommentIdx(final int commentIdx) {
         final Comment comment = commentMapper.findByCommentIdx(commentIdx);
         if (comment == null) return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_COMMENT);
-        if (comment.getU_id() == auth) comment.setAuth(true);
+        //if (comment.getU_id() == auth) comment.setAuth(true);
         CommentLike commentLike;
         return DefaultRes.res(StatusCode.OK, ResponseMessage.READ_COMMENT, comment);
     }
@@ -75,15 +68,14 @@ public class CommentServiceImpl implements CommentService {
     /**
      * 댓글 작성
      *
-     * @param contentIdx
-     * @param comment
-     * @return
+     * @param comment 댓글
+     * @return DefaultRes
      */
+    @Transactional
     @Override
-    public DefaultRes save(final int contentIdx, final Comment comment) {
-        if (contentService.findByContentIdx(0, contentIdx).getData() == null)
+    public DefaultRes save(final Comment comment) {
+        if (contentService.findByContentIdx(comment.getB_id()).getData() == null)
             return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_CONTENT);
-        comment.setB_id(contentIdx);
         try {
             commentMapper.save(comment);
             return DefaultRes.res(StatusCode.CREATED, ResponseMessage.CREATE_COMMENT);
@@ -96,92 +88,100 @@ public class CommentServiceImpl implements CommentService {
 
     /**
      * 댓글 좋아요
+     *
      * @param auth
      * @param commentIdx
-     * @return
+     * @return DefaultRes
      */
+    @Transactional
     @Override
-    public DefaultRes likes(final int auth, final int commentIdx) {
+    public DefaultRes likes(final int userIdx, final int commentIdx) {
         Comment comment = commentMapper.findByCommentIdx(commentIdx);
-        if(comment == null) return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_CONTENT);
+        if (comment == null) return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_CONTENT);
 
-        if(auth == comment.getU_id()) {
+        CommentLike commentLike = commentLikeMapper.findByUserIdxAndCommentIdx(userIdx, commentIdx);
 
-            CommentLike commentLike = commentLikeMapper.findByUserIdxAndCommentIdx(auth, commentIdx);
-
-            try {
-                if (commentLike == null) {
-                    comment.likes();
-                    commentMapper.like(commentIdx, comment.getC_like());
-                    commentLikeMapper.save(auth, commentIdx);
-                    comment = findByCommentIdx(auth, commentIdx).getData();
-                    return DefaultRes.res(StatusCode.OK, ResponseMessage.LIKE_CONTENT, comment);
-                } else {
-                    comment.unLikes();
-                    commentMapper.like(commentIdx, comment.getC_like());
-                    commentLikeMapper.deleteByUserIdxAndCommentIdx(auth, commentIdx);
-                    comment = findByCommentIdx(auth, commentIdx).getData();
-                    return DefaultRes.res(StatusCode.OK, ResponseMessage.UNLIKE_COTENT, comment);
-                }
-            }catch (Exception e) {
-                log.error(e.getMessage());
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
+        try {
+            if (commentLike == null) {
+                comment.likes();
+                commentMapper.like(commentIdx, comment.getC_like());
+                commentLikeMapper.save(userIdx, commentIdx);
+            } else {
+                comment.unLikes();
+                commentMapper.like(commentIdx, comment.getC_like());
+                commentLikeMapper.deleteByUserIdxAndCommentIdx(userIdx, commentIdx);
             }
-
+            comment = findByCommentIdx(commentIdx).getData();
+            return DefaultRes.res(StatusCode.OK, ResponseMessage.LIKE_COMMENT, comment);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
         }
-
-        return DefaultRes.res(StatusCode.UNAUTHORIZED, ResponseMessage.UNAUTHORIZED, false);
     }
 
     /**
-     * 글 수정
-     * @param commentIdx
-     * @param comment
-     * @return
+     * 댓글 수정
+     *
+     * @param comment    댓글 내용
+     * @return DefaultRes
      */
+    @Transactional
     @Override
-    public DefaultRes update(final int commentIdx, final Comment comment) {
-        Comment temp = commentMapper.findByCommentIdx(commentIdx);
-        if (temp == null) return DefaultRes.res(StatusCode.NOT_FOUND, "");
+    public DefaultRes<Comment> update(final Comment comment) {
+        Comment temp = commentMapper.findByCommentIdx(comment.getC_id());
+        if (temp == null)
+            return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_COMMENT);
 
-        if(temp.getU_id() == comment.getU_id()) {
-            try {
-                commentMapper.updateByCommentIdx(commentIdx, comment);
-                temp = commentMapper.findByCommentIdx(commentIdx);
-                return DefaultRes.res(StatusCode.OK, "", temp);
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
-            }
+        try {
+            commentMapper.updateByCommentIdx(comment);
+            temp = commentMapper.findByCommentIdx(comment.getC_id());
+            temp.setAuth(true);
+            return DefaultRes.res(StatusCode.OK, ResponseMessage.UPDATE_COMMENT, temp);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
         }
-        return DefaultRes.res(StatusCode.FORBIDDEN, ResponseMessage.FORBIDDEN, false);
     }
 
     /**
      * 댓글 삭제
      *
-     * @param commentIdx
-     * @return
+     * @param commentIdx 댓글 고유 번호
+     * @return DefaultRes
      */
+    @Transactional
     @Override
-    public DefaultRes deleteByCommentIdx(final int auth, final int commentIdx) {
+    public DefaultRes deleteByCommentIdx(final int commentIdx) {
         final Comment comment = commentMapper.findByCommentIdx(commentIdx);
-        if (comment == null) return DefaultRes.res(StatusCode.NOT_FOUND, "");
+        if (comment == null)
+            return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_COMMENT);
 
-        if (auth == comment.getU_id()) {
-            try {
-                commentMapper.deleteByConmmentIdx(commentIdx);
-                return DefaultRes.res(StatusCode.NO_CONTENT, "");
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
-            }
+        try {
+            commentMapper.deleteByConmmentIdx(commentIdx);
+            return DefaultRes.res(StatusCode.NO_CONTENT, ResponseMessage.DELETE_COMMENT);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return DefaultRes.res(StatusCode.DB_ERROR, ResponseMessage.DB_ERROR);
         }
-
-        return DefaultRes.res(StatusCode.FORBIDDEN, ResponseMessage.FORBIDDEN, false);
     }
 
+    /**
+     * 댓글 권한 확인
+     *
+     * @param userIdx    사용자 고유 번호
+     * @param commentIdx 댓글 고유 번호
+     * @return boolean
+     */
+    @Override
+    public boolean checkAuth(final int userIdx, final int commentIdx) {
+        return userIdx == findByCommentIdx(commentIdx).getData().getU_id();
+    }
+
+    @Override
+    public boolean checkLike(final int userIdx, final int commentIdx) {
+        return commentLikeMapper.findByUserIdxAndCommentIdx(userIdx, commentIdx) != null;
+    }
 }

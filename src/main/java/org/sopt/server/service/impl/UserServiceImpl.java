@@ -5,7 +5,6 @@ import org.sopt.server.dto.User;
 import org.sopt.server.mapper.UserMapper;
 import org.sopt.server.model.DefaultRes;
 import org.sopt.server.model.SignUpReq;
-import org.sopt.server.service.FileUploadService;
 import org.sopt.server.service.UserService;
 import org.sopt.server.utils.ResponseMessage;
 import org.sopt.server.utils.StatusCode;

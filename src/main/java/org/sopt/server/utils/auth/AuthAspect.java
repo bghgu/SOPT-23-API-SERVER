@@ -63,13 +63,13 @@ public class AuthAspect {
         }
 
         //토큰 해독
-        final Optional<JwtUtils.Token> token = JwtUtils.decode(jwt);
+        final JwtUtils.Token token = JwtUtils.decode(jwt);
 
         //토큰 검사
-        if (!token.isPresent()) {
+        if (token == null) {
             return RES_RESPONSE_ENTITY;
         } else {
-            final User user = userService.findByUserIdx(-1, token.get().getUser_idx()).getData();
+            final User user = userService.findByUserIdx(token.getUser_idx()).getData();
 
             //유효 사용자 검사
             if (user == null) {

@@ -10,10 +10,19 @@ import java.util.List;
  */
 
 public interface CommentService {
-    DefaultRes<List<Comment>> findByContentIdx(final int auth, final int contentIdx);
-    DefaultRes<Comment> findByCommentIdx(final int auth, final int commentIdx);
-    DefaultRes save(final int contentIdx, final Comment comment);
-    DefaultRes likes(final int auth, final int commentIdx);
-    DefaultRes<Comment> update(final int commentIdx, final Comment comment);
-    DefaultRes deleteByCommentIdx(final int auth, final int commentIdx);
+    DefaultRes<List<Comment>> findByContentIdx(final int contentIdx);
+
+    DefaultRes<Comment> findByCommentIdx(final int commentIdx);
+
+    DefaultRes save(final Comment comment);
+
+    DefaultRes likes(final int userIdx, final int commentIdx);
+
+    DefaultRes<Comment> update(final Comment comment);
+
+    DefaultRes deleteByCommentIdx(final int commentIdx);
+
+    boolean checkAuth(final int userIdx, final int commentIdx);
+
+    boolean checkLike(final int userIdx, final int commentIdx);
 }

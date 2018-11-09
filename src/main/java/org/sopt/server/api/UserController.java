@@ -63,7 +63,7 @@ public class UserController {
      * @return ResponseEntity
      */
     @PostMapping("")
-    public ResponseEntity signUp(final SignUpReq signUpReq) {
+    public ResponseEntity signUp(@RequestBody final SignUpReq signUpReq) {
         try {
             return new ResponseEntity<>(userService.save(signUpReq), HttpStatus.OK);
         } catch (Exception e) {

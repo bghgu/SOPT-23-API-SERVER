@@ -1,4 +1,4 @@
-package org.sopt.server.service;
+package org.sopt.server.service.impl;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

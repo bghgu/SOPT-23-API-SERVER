@@ -27,7 +27,7 @@ public class AuthServiceImpl implements AuthService {
     public DefaultRes<JwtUtils.TokenRes> login(final LoginReq loginReq) {
         final User user = userMapper.findByEmailAndPassword(loginReq.getEmail(), loginReq.getPassword());
         if (user != null) {
-            final JwtUtils.TokenRes tokenDto = new JwtUtils.TokenRes(JwtUtils.create(user.getU_id()).get());
+            final JwtUtils.TokenRes tokenDto = new JwtUtils.TokenRes(JwtUtils.create(user.getU_id()));
             return DefaultRes.res(StatusCode.OK, ResponseMessage.LOGIN_SUCCESS, tokenDto);
         }
         return DefaultRes.res(StatusCode.BAD_REQUEST, ResponseMessage.LOGIN_FAIL);

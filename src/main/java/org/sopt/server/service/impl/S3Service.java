@@ -1,4 +1,4 @@
-package org.sopt.server.service;
+package org.sopt.server.service.impl;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.s3.AmazonS3Client;

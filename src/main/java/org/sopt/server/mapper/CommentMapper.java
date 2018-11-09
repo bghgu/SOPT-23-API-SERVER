@@ -47,11 +47,10 @@ public interface CommentMapper {
 
     /**
      * 댓글 수정
-     * @param commentIdx
-     * @param comment
+     * @param comment 댓글
      */
-    @Update("UPDATE comment SET() WHERE c_id = #{c_id}")
-    void updateByCommentIdx(@Param("c_id") final int commentIdx, final Comment comment);
+    @Update("UPDATE comment SET() WHERE c_id = #{comment.c_id}")
+    void updateByCommentIdx(@Param("comment") final Comment comment);
 
     //댓글 삭제
     @Delete("DELETE FROM comment WHERE c_id = #{c_id}")
