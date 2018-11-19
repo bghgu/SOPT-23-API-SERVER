@@ -56,7 +56,7 @@ public class ContentServiceImpl implements ContentService {
     @Override
     public DefaultRes<Content> findByContentIdx(final int contentIdx) {
         //글 조회
-        Content content = contentMapper.findByContentIdx(contentIdx);
+        final Content content = contentMapper.findByContentIdx(contentIdx);
         if (content == null) return DefaultRes.res(StatusCode.NOT_FOUND, ResponseMessage.NOT_FOUND_CONTENT);
         return DefaultRes.res(StatusCode.OK, ResponseMessage.READ_CONTENT, content);
     }

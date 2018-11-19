@@ -83,9 +83,12 @@ public class UserController {
      */
     @Auth
     @PutMapping("/{userIdx}")
-    public ResponseEntity updateMyPage(@RequestHeader("Authorization") final String jwt, @PathVariable final int userIdx,
-                                       final SignUpReq signUpReq,
-                                       @RequestPart(value = "profile", required = false) final MultipartFile profile) {
+    public ResponseEntity updateMyPage(
+            @RequestHeader("Authorization") final String jwt,
+            @PathVariable final int userIdx,
+            final SignUpReq signUpReq,
+            @RequestPart(value = "profile", required = false) final MultipartFile profile
+    ) {
         try {
             if (profile != null) signUpReq.setProfile(profile);
             final int tokenValue = JwtUtils.decode(jwt).getUser_idx();

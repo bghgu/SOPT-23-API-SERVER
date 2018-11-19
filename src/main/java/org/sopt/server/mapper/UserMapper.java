@@ -14,7 +14,8 @@ public interface UserMapper {
 
     /**
      * 로그인
-     * @param email 아이디 겸 이메일
+     *
+     * @param email    아이디 겸 이메일
      * @param password 비밀번호
      * @return User
      */
@@ -23,6 +24,7 @@ public interface UserMapper {
 
     /**
      * 이메일로 회원 조회
+     *
      * @param email 이메일
      * @return User
      */
@@ -31,6 +33,7 @@ public interface UserMapper {
 
     /**
      * 마이페이지 조회
+     *
      * @param userIdx 사용자 고유 번호
      * @return User
      */
@@ -39,6 +42,7 @@ public interface UserMapper {
 
     /**
      * 회원 가입
+     *
      * @param signUpReq 회원 가입 정보
      */
     @Insert("INSERT INTO " +
@@ -50,13 +54,16 @@ public interface UserMapper {
 
     /**
      * 회원 정보 수정
-     * @param user
+     *
+     * @param user 회원 정보
      */
-    @Update("UPDATE user SET u_name = #{u_name}, u_part = #{u_part}, u_profile = #{u_profile} WHERE u_id = #{u_id}")
-    void update(final User user);
+    @Update("UPDATE user SET u_name = #{user.u_name}, u_part = #{user.u_part}, " +
+            "u_profile = #{user.u_profile}, u_password = #{user.u_password} WHERE u_id = #{user.u_id}")
+    void update(@Param("user") final User user);
 
     /**
      * 회원 탈퇴
+     *
      * @param userIdx
      */
     @Delete("DELETE FROM user WHERE u_id = #{u_id}")

@@ -20,7 +20,7 @@ public interface ContentMapper {
      * @return
      */
     //'%'||#{search_value}||'%'
-    @Select("SELECT * FROM board LIMIT #{limit} OFFSET #{offset}")
+    @Select("SELECT * FROM board ORDER BY b_id DESC LIMIT #{limit} OFFSET #{offset}")
     List<Content> findAll(final Pagination pagination);
 
     /**

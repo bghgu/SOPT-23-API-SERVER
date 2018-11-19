@@ -93,53 +93,44 @@ Content-Type: application/json
 ------
 ## 글 조회
 
-| 메소드 | 경로      | 짧은 설명 |
-| ------ | --------- | --------- |
-| GET    | /contents | ㄱㅡㄹ 회 |
+| 메소드 | 경로                   | 짧은 설명   |
+| ------ | ---------------------- | ----------- |
+| GET    | /contents/{contentIdx} | 글 조회 |
 
 ### 요청 헤더
 
 ```json
-Content-Type: multipart/form-data
-```
-
-### 요청 바디
-
-```json
-{
-	"name" : "테스트",
-	"email" : "2",
-	"password" : "1234",
-	"part" : "서버"
-}
+Content-Type: application/json
+Authorization: token
 ```
 
 ### 응답 바디
 
-#### 회원 가입 성공
+#### 글 조회 성공
 
 ```json
 {
-    "status": 201,
-    "message": "회원 가입 성공",
-    "data": null
+    "status": 200,
+    "message": "글 조회 성공",
+    "data": {
+        "b_id": 11,
+        "b_title": "1",
+        "b_contents": "",
+        "b_date": "2018-11-03T13:47:35.000+0000",
+        "u_id": 2,
+        "b_like": 0,
+        "b_photo": null,
+        "auth": false,
+        "like": false
+    }
 }
 ```
-#### 회원 가입 실패
+#### 없는 글 조회
 
 ```json
 {
-    "status": 400,
-    "message": "회원 가입 실패",
-    "data": null
-}
-```
-#### DB 에러
-
-```json
-{
-    "status": 600,
-    "message": "데이터베이스 에러",
+    "status": 404,
+    "message": "글이 존재하지 않습니다.",
     "data": null
 }
 ```

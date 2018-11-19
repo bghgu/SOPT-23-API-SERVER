@@ -2,6 +2,7 @@ package org.sopt.server.api;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.server.dto.Content;
+import org.sopt.server.dto.User;
 import org.sopt.server.model.ContentReq;
 import org.sopt.server.model.DefaultRes;
 import org.sopt.server.model.Pagination;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by ds on 2018-10-23.
@@ -66,7 +69,9 @@ public class ContentController {
         try {
             final int userIdx = JwtUtils.decode(httpServletRequest.getHeader(AUTHORIZATION)).getUser_idx();
             DefaultRes<Content> defaultRes = contentService.findByContentIdx(contentIdx);
-            if (userIdx == defaultRes.getData().getU_id()) defaultRes.getData().setAuth(true);
+            if(defaultRes.getStatus() == 200) {
+                if (userIdx == defaultRes.getData().getU_id()) defaultRes.getData().setAuth(true);
+            }
             return new ResponseEntity<>(defaultRes, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());
