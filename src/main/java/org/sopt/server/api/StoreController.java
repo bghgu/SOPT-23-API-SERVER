@@ -1,8 +1,6 @@
 package org.sopt.server.api;
 
-import org.apache.ibatis.annotations.Delete;
 import org.sopt.server.dto.User;
-import org.sopt.server.service.impl.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
